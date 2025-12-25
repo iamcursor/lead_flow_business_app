@@ -547,7 +547,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16.r),
                   topRight: Radius.circular(16.r),
-                  bottomLeft: Radius.circular(4.r),
+                  bottomLeft: Radius.circular(16.r),
                   bottomRight: Radius.circular(16.r),
                 ),
               ),

@@ -8,6 +8,7 @@ import '../models/auth/verify_otp_model.dart';
 import '../services/auth_services.dart';
 import '../services/social_login_service.dart';
 import '../services/storage_service.dart';
+import '../common/utils/app_excpetions.dart';
 
 import 'dart:async';
 
@@ -181,7 +182,28 @@ class AuthProvider with ChangeNotifier {
 
       final data = await _service.login(model);
 
+      // Check if data is null (which happens when safeApiCall catches an exception)
+      if (data == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
       _response = data;
+      
+      // Verify user is a business owner
+      String? userRole;
+      if (data['user'] != null && data['user'] is Map<String, dynamic>) {
+        final user = data['user'] as Map<String, dynamic>;
+        userRole = user['role']?.toString().toLowerCase();
+      }
+      
+      // Check if user is not a business owner
+      if (userRole != null && userRole != 'business_owner') {
+        _isLoading = false;
+        notifyListeners();
+        throw ForbiddenException('Only business owners can access this app. Please use the customer app instead.');
+      }
       
       // Extract and save token from response
       if (data.containsKey('token') && data['token'] != null) {
@@ -205,10 +227,14 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
 
       return true;
+    } on ForbiddenException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print("Login error (Forbidden) → $e");
+      rethrow; // Re-throw to handle in login page
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-
       print("Login error → $e");
       return false;
     }

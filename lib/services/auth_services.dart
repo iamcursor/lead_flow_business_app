@@ -19,8 +19,11 @@ class SignupService {
         body: model.toJson(),
       );
 
+      // If data is null, it means safeApiCall caught an exception
+      // For login, if we get null, it's likely a 403 Forbidden (user not a business owner)
+      // We throw ForbiddenException so the provider can handle it properly
       if (data == null) {
-        throw UnknownException('Login failed: No response from server');
+        throw ForbiddenException('User is not a business owner.');
       }
 
       if (data is Map<String, dynamic>) {
@@ -28,9 +31,13 @@ class SignupService {
       } else {
         throw UnknownException('Invalid response format');
       }
+    } on ForbiddenException {
+      // Re-throw ForbiddenException so provider can handle it
+      rethrow;
     } on NetworkExceptions {
       rethrow;
     } catch (e) {
+      if (e is ForbiddenException) rethrow;
       if (e is NetworkExceptions) rethrow;
       throw UnknownException('Login failed: ${e.toString()}');
     }

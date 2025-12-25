@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lead_flow_business/screens/auth/forgot_password_page.dart';
@@ -12,6 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
+import '../../common/utils/app_excpetions.dart';
 
 /// Login Page
 class LoginPage extends StatefulWidget {
@@ -315,11 +317,53 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      final success = await provider.loginUser(model);
+      try {
+        final success = await provider.loginUser(model);
 
-      if (!success) {
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login failed. Please try again')),
+          );
+          return;
+        }
+      } on ForbiddenException catch (e) {
+        // Extract user-friendly error message
+        String errorMessage = 'Only business owners can access this app. Please use the customer app instead.';
+        final errorString = e.toString();
+        
+        // Try to extract message from error string
+        if (errorString.contains('{"message":')) {
+          try {
+            final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(errorString);
+            if (jsonMatch != null) {
+              final json = jsonDecode(jsonMatch.group(0)!) as Map<String, dynamic>;
+              if (json.containsKey('message')) {
+                errorMessage = json['message'].toString();
+              }
+            }
+          } catch (_) {
+            // Use default message if parsing fails
+          }
+        } else if (errorString.contains('business owner') || errorString.contains('User is not a business owner')) {
+          errorMessage = 'Only business owners can access this app. Please use the customer app instead.';
+        } else if (errorString.contains('Forbidden')) {
+          errorMessage = 'Access denied. Only business owners can use this app.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed. Please try again')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        return;
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
         return;
       }
