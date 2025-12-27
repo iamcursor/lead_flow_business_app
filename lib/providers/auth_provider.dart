@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/auth/login_model.dart';
 import '../models/auth/reset_password_model.dart';
@@ -7,7 +8,7 @@ import '../models/auth/signup_model.dart';
 import '../models/auth/verify_otp_model.dart';
 import '../services/auth_services.dart';
 import '../services/social_login_service.dart';
-import '../services/storage_service.dart';
+import '../services/notification_service.dart';
 import '../common/utils/app_excpetions.dart';
 
 import 'dart:async';
@@ -44,6 +45,12 @@ class AuthProvider with ChangeNotifier {
 
   Map<String, dynamic>? _response;
   Map<String, dynamic>? get response => _response;
+
+  String? _authToken;
+  String? get authToken => _authToken;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
 
   // Update response with new data (for profile updates)
   void updateResponse(Map<String, dynamic> newData) {
@@ -126,20 +133,28 @@ class AuthProvider with ChangeNotifier {
     _rememberMe = value;
     // If unchecking remember me, clear saved credentials
     if (!value) {
-      StorageService.instance.clearSavedCredentials();
+      _clearSavedCredentials(); // Fire and forget
       _savedEmail = null;
       _savedPassword = null;
     }
     notifyListeners();
   }
 
+  /// Clear saved credentials
+  Future<void> _clearSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saved_email');
+    await prefs.remove('saved_password');
+  }
+
   /// Load saved credentials from storage
   Future<void> loadSavedCredentials() async {
     try {
-      final hasCredentials = await StorageService.instance.hasSavedCredentials();
+      final prefs = await SharedPreferences.getInstance();
+      final hasCredentials = prefs.containsKey('saved_email') && prefs.containsKey('saved_password');
       if (hasCredentials) {
-        _savedEmail = await StorageService.instance.getSavedEmail();
-        _savedPassword = await StorageService.instance.getSavedPassword();
+        _savedEmail = prefs.getString('saved_email');
+        _savedPassword = prefs.getString('saved_password');
         _rememberMe = true;
         notifyListeners();
       }
@@ -150,7 +165,8 @@ class AuthProvider with ChangeNotifier {
 
   /// Check if saved credentials exist
   Future<bool> hasSavedCredentials() async {
-    return await StorageService.instance.hasSavedCredentials();
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey('saved_email') && prefs.containsKey('saved_password');
   }
 
   void startTimer() {
@@ -208,17 +224,22 @@ class AuthProvider with ChangeNotifier {
       // Extract and save token from response
       if (data.containsKey('token') && data['token'] != null) {
         final token = data['token'] as String;
-        await StorageService.instance.saveToken(token);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
       }
 
       // Save credentials if remember me is checked
       if (_rememberMe) {
-        await StorageService.instance.saveCredentials(model.email, model.password);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('saved_email', model.email);
+        await prefs.setString('saved_password', model.password);
         _savedEmail = model.email;
         _savedPassword = model.password;
       } else {
         // Clear saved credentials if remember me is unchecked
-        await StorageService.instance.clearSavedCredentials();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
         _savedEmail = null;
         _savedPassword = null;
       }
@@ -253,7 +274,8 @@ class AuthProvider with ChangeNotifier {
       // Extract and save token from response
       if (data.containsKey('token') && data['token'] != null) {
         final token = data['token'] as String;
-        await StorageService.instance.saveToken(token);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
       }
 
       _isLoading = false;
@@ -348,11 +370,13 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
 
       // Clear token from storage
-      await StorageService.instance.deleteToken();
-      await StorageService.instance.deleteRefreshToken();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('refresh_token');
       
       // Clear saved credentials
-      await StorageService.instance.clearSavedCredentials();
+      await prefs.remove('saved_email');
+      await prefs.remove('saved_password');
       _savedEmail = null;
       _savedPassword = null;
       
@@ -370,68 +394,148 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // //Google Sign-In Function
-  // Future<bool> signInWithGoogle() async {
-  //   try {
-  //     _isLoading = true;
-  //     notifyListeners();
-  //
-  //     final userCredential = await GoogleSignInService.signInWithGoogle();
-  //
-  //     if (userCredential == null) {
-  //       // User cancelled the sign-in
-  //       _isLoading = false;
-  //       notifyListeners();
-  //       return false;
-  //     }
-  //
-  //     final user = userCredential.user;
-  //     if (user != null) {
-  //       // Extract and save token if available
-  //       final idToken = await user.getIdToken();
-  //       if (idToken != null) {
-  //         await StorageService.instance.saveToken(idToken);
-  //         ApiClient.instance.setAuthToken(idToken);
-  //       }
-  //
-  //       _response = {
-  //         'uid': user.uid,
-  //         'email': user.email,
-  //         'name': user.displayName,
-  //         'photoURL': user.photoURL,
-  //         'token': idToken,
-  //       };
-  //
-  //       _isLoading = false;
-  //       notifyListeners();
-  //       return true;
-  //     }
-  //
-  //     _isLoading = false;
-  //     notifyListeners();
-  //     return false;
-  //   } catch (e) {
-  //     _isLoading = false;
-  //     notifyListeners();
-  //     print("Google Sign-In error → $e");
-  //     return false;
-  //   }
-  // }
-  //
-  // //Logout Function
-  // Future<void> logout() async {
-  //   try {
-  //     // Sign out from Google if signed in
-  //     await GoogleSignInService.signOut();
-  //     // Clear stored tokens
-  //     await StorageService.instance.clearAllTokens();
-  //     // Remove token from API client
-  //     ApiClient.instance.removeAuthToken();
-  //     // Clear response data
-  //     _response = null;
-  //     notifyListeners();
-  //   } catch (e) {
-  //     print("Logout error → $e");
-  //   }
-  // }
+  //Google Sign-In Function
+  // Follows the reference pattern - authenticates with Google and gets user info
+  // No backend API call required
+  Future<bool> signInWithGoogle() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Step 1: Clear any previous Google sign-in state to ensure fresh account selection
+      // This ensures that if user logged out and wants to use a different account,
+      // they get the account picker instead of auto-signing in with previous account
+      try {
+        await GoogleSignInService.signOut();
+      } catch (e) {
+        // Ignore errors - might already be signed out
+        print("Pre-signin cleanup (expected if not signed in): $e");
+      }
+
+      // Step 2: Initialize Google Sign-In (fresh initialization)
+      await GoogleSignInService.initialize();
+
+      // Step 3: Sign in with Google (will show account picker)
+      final googleUser = await GoogleSignInService.signIn();
+
+      if (googleUser == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Step 4: Get authentication tokens
+      final tokens = await GoogleSignInService.getAuthenticationTokens(googleUser);
+
+      if (tokens == null || tokens['idToken'] == null) {
+        _isLoading = false;
+        _errorMessage = "Failed to get Google authentication tokens";
+        notifyListeners();
+        print("Failed to get Google authentication tokens");
+        return false;
+      }
+
+      // Step 5: Get FCM token
+      final fcmToken = await NotificationService().getFcmToken();
+      print("FCM Token retrieved: ${fcmToken ?? 'null'}");
+
+      // Step 6: Send email to backend and get your app's token
+      final backendResponse = await SignupService.googleSignIn(
+        email: googleUser.email,
+        name: googleUser.displayName,
+        googleId: googleUser.id,
+        idToken: tokens['idToken'], // Send for backend verification
+        fcmToken: fcmToken, // Send FCM token
+      );
+
+      if (backendResponse == null) {
+        _isLoading = false;
+        _errorMessage = "Failed to authenticate with backend";
+        notifyListeners();
+        print("Failed to authenticate with backend");
+        return false;
+      }
+
+      if (backendResponse['error'] != null || backendResponse['status'] == 'error') {
+        _isLoading = false;
+        _errorMessage = backendResponse['message'] ?? 'Authentication failed';
+        notifyListeners();
+        return false;
+      }
+
+      // Step 7: Store the backend token and user data
+      _authToken = backendResponse['token']; // Get token from backend
+      _response = backendResponse;
+
+      if (_authToken == null || _authToken!.isEmpty) {
+        _isLoading = false;
+        _errorMessage = "No token received from backend";
+        notifyListeners();
+        return false;
+      }
+
+      // Save token to SharedPreferences - this is critical for API calls
+      await _saveTokenToStorage(_authToken!);
+
+      _isLoading = false;
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      print("Google Sign-In error → $e");
+      return false;
+    }
+  }
+
+  /// Save token to local storage using SharedPreferences
+  Future<void> _saveTokenToStorage(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
+  /// Sign out - Clear all tokens and user data
+  Future<void> signOut() async {
+    try {
+      // Sign out from Google
+      await GoogleSignInService.signOut();
+      
+      // Clear auth token and response
+      _authToken = null;
+      _response = null;
+      _errorMessage = null;
+      _savedEmail = null;
+      _savedPassword = null;
+      _rememberMe = false;
+
+      // Clear all tokens and auth-related data from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token'); // Main auth token
+      await prefs.remove('refresh_token'); // Refresh token if exists
+      await prefs.remove('auth_token'); // Legacy token key if exists
+      
+      // Clear saved credentials
+      await prefs.remove('saved_email');
+      await prefs.remove('saved_password');
+      
+      // Clear cookie if exists (used for device authentication)
+      await prefs.remove('Cookie');
+
+      notifyListeners();
+    } catch (e) {
+      print("Sign out error: $e");
+      // Still clear local state even if storage clearing fails
+      _authToken = null;
+      _response = null;
+      _errorMessage = null;
+      _savedEmail = null;
+      _savedPassword = null;
+      _rememberMe = false;
+      notifyListeners();
+    }
+  }
+
 }

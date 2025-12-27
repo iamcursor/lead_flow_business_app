@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:lead_flow_business/common/constants/app_url.dart';
 import 'package:lead_flow_business/common/utils/request_provider.dart';
 import 'package:lead_flow_business/common/utils/app_excpetions.dart';
 
 import '../../models/auth/signup_model.dart';
+import '../common/constants/app_constants.dart';
 import '../models/auth/login_model.dart';
 import '../models/auth/reset_password_model.dart';
 import '../models/auth/send_otp_model.dart';
@@ -167,4 +171,36 @@ class SignupService {
       throw UnknownException('Delete user failed: ${e.toString()}');
     }
   }
+  static Future<Map<String, dynamic>?> googleSignIn({
+    required String email,
+    String? name,
+    String? googleId,
+    String? idToken,
+    String? fcmToken,
+  }) async {
+    try {
+      // Prepare request body
+      final requestBody = {
+        'email': email,
+        'name': name,
+        'google_id': googleId,
+        'id_token': idToken, // Backend can verify this token with Google
+        'fcm_token': fcmToken ?? '', // Always include fcm_token, even if empty
+      };
+      
+      print('Google Sign-In Request Body: ${jsonEncode(requestBody)}');
+      
+      final response = await RequestProvider.post(
+        url: '${AppConstants.baseUrl}/users/google-signin/business-owner/',
+        body: jsonEncode(requestBody),
+      );
+
+      return response as Map<String, dynamic>?;
+    } catch (e) {
+      print('Google Sign-In API error: $e');
+      return null;
+    }
+  }
 }
+
+

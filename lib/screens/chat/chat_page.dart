@@ -212,7 +212,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusL),
           border: Border.all(
             color: AppColors.primary,
             width: 1,

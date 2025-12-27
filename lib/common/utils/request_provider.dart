@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:lead_flow_business/common/utils/utils.dart';
 import 'package:lead_flow_business/styles/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../services/storage_service.dart';
 
 
 import 'app_excpetions.dart';
@@ -38,6 +37,9 @@ class RequestProvider {
       '/users/signup/',
       '/users/send-otp/',
       '/users/verify-otp/',
+      '/users/google-signin/business-owner/',
+      // '/users/google-signin/',  // Add this line
+      // '/google-signin/',
     ];
     return publicEndpoints.any((endpoint) => url.contains(endpoint));
   }
@@ -89,8 +91,8 @@ class RequestProvider {
   }
 
   static Future<Map<String, String>> _getHeaders({String? url}) async {
-    final token = await StorageService.instance.getToken() ?? '';
     final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
     final cookie = prefs.getString('Cookie') ?? '';
 
     final Map<String, String> headers = {

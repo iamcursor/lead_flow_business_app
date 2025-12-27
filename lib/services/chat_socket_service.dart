@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../common/constants/app_constants.dart';
-import '../services/storage_service.dart';
 
 /// Chat Socket Service
 /// Handles Socket.IO connection and real-time chat events
@@ -19,7 +19,6 @@ class ChatSocketService {
   IO.Socket? _socket;
   String? _authToken;
   final String _serverUrl = AppConstants.baseUrl;
-  final StorageService _storageService = StorageService.instance;
 
   // Callbacks
   Function(Map<String, dynamic>)? onMessageReceived;
@@ -59,7 +58,8 @@ class ChatSocketService {
     
     try {
       // Get token from storage
-      _authToken = await _storageService.getToken();
+      final prefs = await SharedPreferences.getInstance();
+      _authToken = prefs.getString('token');
       
       if (_authToken == null || _authToken!.isEmpty) {
         final error = 'Authentication token not found. Please login again.';

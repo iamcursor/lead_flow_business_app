@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lead_flow_business/screens/earnings/earnings_page.dart';
+import 'package:lead_flow_business/screens/main_navigation_screen.dart';
 import 'package:lead_flow_business/screens/profile/waiting_for_approval_page.dart';
 
 import 'package:provider/provider.dart';
@@ -149,16 +149,57 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
         if (success) {
           // Check verification status from response
           final response = provider.response;
-          final verificationStatus = response?['verification_status']?.toString().toLowerCase() ?? 
-                                    response?['approval_status']?.toString().toLowerCase() ?? 
-                                    response?['status']?.toString().toLowerCase();
+          String? verificationStatus;
           
-          // Navigate to waiting for approval if status is pending
+          // Check various possible locations for verification status
+          if (response != null) {
+            // Check direct fields
+            verificationStatus = response['verification_status']?.toString().toLowerCase() ?? 
+                                response['approval_status']?.toString().toLowerCase() ?? 
+                                response['status']?.toString().toLowerCase();
+            
+            // Check nested in user object
+            if (verificationStatus == null && response['user'] != null) {
+              final user = response['user'] as Map<String, dynamic>?;
+              
+              // Check in user object directly
+              verificationStatus = user?['verification_status']?.toString().toLowerCase() ?? 
+                                 user?['approval_status']?.toString().toLowerCase() ?? 
+                                 user?['status']?.toString().toLowerCase();
+              
+              // Check nested in business_owner_profile within user object
+              if (verificationStatus == null && user?['business_owner_profile'] != null) {
+                final profile = user!['business_owner_profile'] as Map<String, dynamic>?;
+                verificationStatus = profile?['verification_status']?.toString().toLowerCase() ?? 
+                                   profile?['approval_status']?.toString().toLowerCase() ?? 
+                                   profile?['status']?.toString().toLowerCase();
+              }
+            }
+            
+            // Check nested in business_owner_profile at root level (fallback)
+            if (verificationStatus == null && response['business_owner_profile'] != null) {
+              final profile = response['business_owner_profile'] as Map<String, dynamic>?;
+              verificationStatus = profile?['verification_status']?.toString().toLowerCase() ?? 
+                                 profile?['approval_status']?.toString().toLowerCase() ?? 
+                                 profile?['status']?.toString().toLowerCase();
+            }
+          }
+          
+          // Navigate based on verification status
           if (verificationStatus == 'pending' || verificationStatus == 'waiting') {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WaitingForApprovalPage(),));
+            // Redirect to waiting for approval screen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WaitingForApprovalPage()),
+            );
           } else {
-            // Navigate to home if already approved
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => EarningsPage(),));
+            // Redirect to main navigation screen (Explore page at index 0)
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MainNavigationScreen(initialIndex: 0),
+              ),
+            );
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

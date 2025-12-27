@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
+import '../main_navigation_screen.dart';
+import '../profile/waiting_for_approval_page.dart';
 import 'login_page.dart';
 
 /// Register Page
@@ -175,7 +177,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
-                              onPressed: authProvider.isLoading ? null : () {},
+                              onPressed: () => _handleGoogleSignIn(context),
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: AppColors.background,
                                 foregroundColor: AppColors.primary,
@@ -369,6 +371,40 @@ class _RegisterPageState extends State<RegisterPage> {
       // Redirect to complete profile page after registration
       // --------------------------------------
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
+    }
+  }
+
+  void _handleGoogleSignIn(BuildContext context) async {
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      final success = await provider.signInWithGoogle();
+
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google Sign-In failed. Please try again'),
+          ),
+        );
+        return;
+      }
+
+      // Google Sign-In successful and backend authenticated
+      // Token is now stored in provider.authToken
+      // Navigate to complete profile page (same for both login and signup)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CompleteProfilePage(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

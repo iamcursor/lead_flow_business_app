@@ -7,8 +7,8 @@ import 'package:lead_flow_business/screens/profile/edit_profile_page.dart';
 import 'package:lead_flow_business/screens/profile/notification_settings_page.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
 import '../../providers/business_owner_provider.dart';
-import '../../services/storage_service.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
@@ -20,13 +20,19 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClientMixin {
+class _ProfilePageState extends State<ProfilePage> {
   @override
-  bool get wantKeepAlive => true;
+  void initState() {
+    super.initState();
+    // Fetch business owner profile when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
+      provider.fetchBusinessOwnerProfile();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
         // Extract user data from GET API response only
@@ -394,8 +400,10 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                             ),
                             child: InkWell(
                               onTap: () async {
-                                // Clear all tokens
-                                await StorageService.instance.clearAllTokens();
+                                // Get auth provider and sign out properly
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                await authProvider.signOut();
+                                
                                 // Navigate to login screen
                                 if (context.mounted) {
                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),));

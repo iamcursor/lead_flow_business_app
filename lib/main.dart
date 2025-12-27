@@ -21,9 +21,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // // Initialize FCM service
-  // NotificationService().requestNotificationPermission();
-  // NotificationService().isTokenRefresh();
-  // NotificationService().getFcmToken();
+  NotificationService().requestNotificationPermission();
+  NotificationService().isTokenRefresh();
+  NotificationService().getFcmToken();
 
   // Initialize API client with stored token if available
   // await _initializeApp();
@@ -36,7 +36,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => EarningsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
-        // ChangeNotifierProvider(create: (_) => ChatProvider()),
+
       ],
       child: const MyApp(),
     ),
