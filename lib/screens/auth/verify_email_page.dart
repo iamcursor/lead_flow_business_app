@@ -78,6 +78,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   void _handleVerify() async {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+    
     final otpCode = _getOtpCode();
     if (otpCode.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +135,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
 
   void _handleResendCode() {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+    
     final provider = Provider.of<AuthProvider>(context, listen: false);
     if (!provider.canResend) return;
 
@@ -156,10 +162,18 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return Stack(
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return PopScope(
+          canPop: !authProvider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (authProvider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            body: Stack(
             children: [
               SingleChildScrollView(
                 padding: EdgeInsets.all(AppDimensions.screenPaddingTop),
@@ -326,9 +340,10 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
+          ),
+          )
+        );
+      },
     );
   }
 }

@@ -29,10 +29,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return Stack(
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return PopScope(
+          canPop: !authProvider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (authProvider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            body: Stack(
             children: [
               // Main Content
               SingleChildScrollView(
@@ -312,14 +320,18 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
+          ),
+        ),
+      );
+      },
     );
   }
 
   void _handleSignUp() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<AuthProvider>(context, listen: false);
       
       if (!provider.acceptTerms) {
@@ -375,6 +387,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleGoogleSignIn(BuildContext context) async {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+    
     final provider = Provider.of<AuthProvider>(context, listen: false);
 
     try {

@@ -142,6 +142,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   Future<void> _handleNext() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
 
       if (provider.isLoading) return;
@@ -194,7 +197,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         if (mounted) {
           if (success) {
             // Navigate to Step 2
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteProfileStep2Page(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfileStep2Page(),));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -219,9 +222,17 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   Widget build(BuildContext context) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SafeArea(
             child: Column(
@@ -689,7 +700,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

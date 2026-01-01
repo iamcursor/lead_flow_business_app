@@ -77,9 +77,36 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
 
   Future<void> _handleNext() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
 
       if (provider.isLoading) return;
+
+      // Validate all required fields
+      if (provider.selectedExperience == null || provider.selectedExperience!.isEmpty ||
+          provider.selectedServiceCategory == null || provider.selectedServiceCategory!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All fields are required'),
+          ),
+        );
+        return;
+      }
+
+      // Validate sub-services selection
+      if (provider.selectedServiceCategory != null && provider.selectedServiceCategory!.isNotEmpty) {
+        final hasSelectedSubServices = provider.subServices.values.any((isSelected) => isSelected);
+        if (!hasSelectedSubServices) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('All fields are required'),
+            ),
+          );
+          return;
+        }
+      }
 
       try {
         // Create BusinessProfileModel with step 1 + step 2 data
@@ -129,7 +156,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
         if (mounted) {
           if (success) {
             // Navigate to Step 3
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteProfileStep3Page(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfileStep3Page(),));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -156,9 +183,17 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
   Widget build(BuildContext context) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SafeArea(
             child: Column(
@@ -648,7 +683,8 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                 ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

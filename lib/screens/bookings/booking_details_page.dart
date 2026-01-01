@@ -7,6 +7,7 @@ import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
 import '../../models/booking/booking_model.dart';
 import '../../providers/booking_provider.dart';
+import 'completed_booking_details_page.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final BookingModel booking;
@@ -21,24 +22,32 @@ class BookingDetailsPage extends StatefulWidget {
 }
 
 class _BookingDetailsPageState extends State<BookingDetailsPage> {
-  bool _isUpdatingStatus = false;
+  @override
+  void initState() {
+    super.initState();
+    // Clear booking details when page is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+      bookingProvider.clearBookingDetails();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clear booking details when page is disposed
+    final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+    bookingProvider.clearBookingDetails();
+    super.dispose();
+  }
 
   Future<void> _handleStartBooking() async {
-    setState(() {
-      _isUpdatingStatus = true;
-    });
-
     final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-    final success = await bookingProvider.updateBookingStatus(
+    final updatedBooking = await bookingProvider.updateBookingStatus(
       bookingId: widget.booking.bookingId,
       status: 'in_progress',
     );
 
-    setState(() {
-      _isUpdatingStatus = false;
-    });
-
-    if (success) {
+    if (updatedBooking != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Booking started successfully!'),
@@ -60,31 +69,44 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   }
 
   Future<void> _handleCompleteBooking() async {
-    setState(() {
-      _isUpdatingStatus = true;
-    });
-
     final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-    final success = await bookingProvider.updateBookingStatus(
+    
+    // Convert extra charges to API format
+    List<Map<String, dynamic>>? chargesList;
+    if (bookingProvider.extraCharges.isNotEmpty) {
+      chargesList = bookingProvider.extraCharges.map((charge) => {
+        'label': charge.name,
+        'amount': charge.price,
+      }).toList();
+    }
+
+    final updatedBooking = await bookingProvider.updateBookingStatus(
       bookingId: widget.booking.bookingId,
       status: 'completed',
     );
 
-    setState(() {
-      _isUpdatingStatus = false;
-    });
-
-    if (success) {
+    if (updatedBooking != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Booking completed successfully!'),
           backgroundColor: AppColors.success,
         ),
       );
-      // Refresh bookings list
-      await bookingProvider.refreshBookings();
-      // Pop back to bookings list
-      Navigator.pop(context);
+      
+      // Navigate to completed booking page with service notes and extra charges
+      final serviceNotes = bookingProvider.serviceNotes.isNotEmpty 
+          ? List<String>.from(bookingProvider.serviceNotes) 
+          : null;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CompletedBookingDetailsPage(
+            booking: updatedBooking,
+            serviceNotes: serviceNotes,
+            extraCharges: chargesList,
+          ),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -97,7 +119,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<BookingProvider>(
+      builder: (context, bookingProvider, child) {
+        return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
@@ -163,6 +187,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   // Pricing & Payments Card
                   _buildPricingCard(),
                   
+                  // Service Notes and Extra Charges containers (only for in_progress status)
+                  if (widget.booking.status.toLowerCase() == 'in_progress') ...[
+                    SizedBox(height: AppDimensions.verticalSpaceM),
+                    _buildServiceNotesContainer(),
+                    SizedBox(height: AppDimensions.verticalSpaceM),
+                    _buildExtraChargesContainer(),
+                  ],
+                  
                   SizedBox(height: AppDimensions.verticalSpaceXL),
                           // Show button based on status
                           if (widget.booking.status.toLowerCase() == 'confirmed')
@@ -173,7 +205,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: AppColors.textOnPrimary,
                                 ),
-                                onPressed: _isUpdatingStatus ? null : _handleStartBooking,
+                                onPressed: bookingProvider.isUpdatingStatus ? null : _handleStartBooking,
                                 child: Text('Start Booking', style: AppTextStyles.buttonLarge),
                               ),
                             )
@@ -185,7 +217,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: AppColors.textOnPrimary,
                                 ),
-                                onPressed: _isUpdatingStatus ? null : _handleCompleteBooking,
+                                onPressed: bookingProvider.isUpdatingStatus ? null : _handleCompleteBooking,
                                 child: Text('Complete Booking', style: AppTextStyles.buttonLarge),
                               ),
                             ),
@@ -197,7 +229,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               ],
             ),
             // Loader Overlay
-            if (_isUpdatingStatus)
+            if (bookingProvider.isUpdatingStatus)
               Container(
                 color: AppColors.overlayLight,
                 child: Center(
@@ -216,6 +248,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 
@@ -558,6 +592,402 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       // TODO: Implement messaging functionality
 
     }
+  }
+
+  void _addServiceNote() {
+    final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController noteController = TextEditingController();
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.dialogRadius),
+          ),
+          title: Text(
+            'Add Service Note',
+            style: AppTextStyles.titleLarge,
+          ),
+          content: TextField(
+            controller: noteController,
+            decoration: InputDecoration(
+              hintText: 'Enter service note',
+              hintStyle: AppTextStyles.inputHint,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+              ),
+            ),
+            style: AppTextStyles.inputText,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.buttonMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                if (noteController.text.trim().isNotEmpty) {
+                  bookingProvider.addServiceNote(noteController.text.trim());
+                  Navigator.pop(context);
+                }
+              },
+              child: Text(
+                'Add',
+                style: AppTextStyles.buttonMedium.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addExtraCharge() async {
+    if (!mounted) return;
+    final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+    
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => _AddExtraChargeDialog(
+        onAdd: (name, price) {
+          bookingProvider.addExtraCharge(ExtraCharge(name: name, price: price));
+        },
+      ),
+    );
+  }
+
+  Widget _buildServiceNotesContainer() {
+    return Consumer<BookingProvider>(
+      builder: (context, bookingProvider, child) {
+        return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: AppDimensions.shadowBlurRadius,
+            offset: Offset(0, AppDimensions.shadowOffset),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(AppDimensions.cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row with Add details and Add button
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Add details section
+                    Text(
+                      'Add details',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.verticalSpaceM),
+                    Text(
+                      'Service Notes',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Add button at top right
+              GestureDetector(
+                onTap: _addServiceNote,
+                child: Container(
+                  width: 35.w,
+                  height: 35.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    size: AppDimensions.iconM,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppDimensions.verticalSpaceS),
+          // Service Notes Tags
+          Wrap(
+            spacing: AppDimensions.paddingS,
+            runSpacing: AppDimensions.paddingS,
+            children: [
+              ...bookingProvider.serviceNotes.map((note) => Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppDimensions.paddingM,
+                      vertical: AppDimensions.paddingS,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariant,
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+                    ),
+                    child: Text(
+                      note,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+        ],
+      ),
+    );
+      },
+    );
+  }
+
+  Widget _buildExtraChargesContainer() {
+    return Consumer<BookingProvider>(
+      builder: (context, bookingProvider, child) {
+        return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: AppDimensions.shadowBlurRadius,
+            offset: Offset(0, AppDimensions.shadowOffset),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(AppDimensions.cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row with Extra Charges and Add button
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Extra Charges',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              // Add button at top right
+              GestureDetector(
+                onTap: _addExtraCharge,
+                child: Container(
+                  width: 35.w,
+                  height: 35.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    size: AppDimensions.iconM,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppDimensions.verticalSpaceM),
+          // Extra Charges List
+          if (bookingProvider.extraCharges.isEmpty)
+            Text(
+              'No extra charges added',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            )
+          else
+            ...bookingProvider.extraCharges.map((charge) => Padding(
+                  padding: EdgeInsets.only(
+                    bottom: AppDimensions.verticalSpaceS,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          charge.name,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '\$${charge.price.toStringAsFixed(0)}',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+        ],
+      ),
+    );
+      },
+    );
+  }
+}
+
+class _AddExtraChargeDialog extends StatefulWidget {
+  final Function(String name, double price) onAdd;
+
+  const _AddExtraChargeDialog({required this.onAdd});
+
+  @override
+  State<_AddExtraChargeDialog> createState() => _AddExtraChargeDialogState();
+}
+
+class _AddExtraChargeDialogState extends State<_AddExtraChargeDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _priceController;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _priceController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  void _handleAdd() {
+    final name = _nameController.text.trim();
+    final priceText = _priceController.text.trim();
+    
+    setState(() {
+      _errorMessage = null;
+    });
+    
+    if (name.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter a charge name';
+      });
+      return;
+    }
+    
+    if (priceText.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter a price';
+      });
+      return;
+    }
+    
+    final price = double.tryParse(priceText);
+    if (price == null || price < 0) {
+      setState(() {
+        _errorMessage = 'Please enter a valid price';
+      });
+      return;
+    }
+    
+    widget.onAdd(name, price);
+    if (mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.dialogRadius),
+      ),
+      title: Text(
+        'Add Extra Charge',
+        style: AppTextStyles.titleLarge,
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                hintText: 'e.g., Extra Pipe',
+                hintStyle: AppTextStyles.inputHint,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+                ),
+              ),
+              style: AppTextStyles.inputText,
+              autofocus: true,
+            ),
+            SizedBox(height: AppDimensions.verticalSpaceM),
+            TextField(
+              controller: _priceController,
+              decoration: InputDecoration(
+                hintText: 'e.g., 200',
+                hintStyle: AppTextStyles.inputHint,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+                ),
+                prefixText: '\$ ',
+              ),
+              keyboardType: TextInputType.number,
+              style: AppTextStyles.inputText,
+            ),
+            if (_errorMessage != null) ...[
+              SizedBox(height: AppDimensions.verticalSpaceS),
+              Text(
+                _errorMessage!,
+                style: AppTextStyles.inputError,
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'Cancel',
+            style: AppTextStyles.buttonMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: _handleAdd,
+          child: Text(
+            'Add',
+            style: AppTextStyles.buttonMedium.copyWith(
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

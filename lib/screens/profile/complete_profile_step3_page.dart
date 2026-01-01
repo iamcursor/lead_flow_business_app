@@ -45,6 +45,20 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
   }
 
   Future<void> _handleIdDocumentUpload() async {
+    final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
+    
+    // Check if ID type is selected first
+    if (provider.selectedIdType == null || provider.selectedIdType!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select id type'),
+          ),
+        );
+      }
+      return;
+    }
+    
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -84,7 +98,6 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
           return;
         }
 
-        final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
         provider.setSelectedIdDocument(file);
 
         // If ID type is "ID Card", analyze the file
@@ -357,13 +370,16 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
 
   Future<void> _handleNext() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
       
       // Validate step3 required fields
       if (provider.selectedIdType == null || provider.selectedIdType!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please select an ID type'),
+            content: Text('Please upload documents'),
           ),
         );
         return;
@@ -442,7 +458,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
         if (mounted) {
           if (success) {
             // Navigate to Step 4
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteProfileStep4Page(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfileStep4Page(),));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -467,9 +483,17 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
   Widget build(BuildContext context) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SafeArea(
             child: Column(
@@ -942,7 +966,8 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                 ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

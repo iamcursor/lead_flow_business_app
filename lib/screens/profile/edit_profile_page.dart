@@ -139,6 +139,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _handleUpdate() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
       
       // Get form values
@@ -184,11 +187,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Consumer<BusinessOwnerProvider>(
-        builder: (context, provider, child) {
-          return Stack(
+    return Consumer<BusinessOwnerProvider>(
+      builder: (context, provider, child) {
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SingleChildScrollView(
                 child: Column(
@@ -542,9 +553,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
+          ),
+          )
+        );
+      },
     );
   }
 }

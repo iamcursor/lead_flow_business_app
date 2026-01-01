@@ -164,9 +164,36 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
 
   Future<void> _handleNext() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
 
       if (provider.isLoading) return;
+
+      // Validate all required fields
+      if (provider.startTime == null || 
+          provider.endTime == null ||
+          provider.serviceRate == null || 
+          provider.serviceRate!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All fields are required'),
+          ),
+        );
+        return;
+      }
+
+      // Validate at least one availability day is selected
+      final hasSelectedAvailabilityDays = provider.availabilityDays.values.any((isSelected) => isSelected);
+      if (!hasSelectedAvailabilityDays) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All fields are required'),
+          ),
+        );
+        return;
+      }
 
       try {
         // Prepare file objects from provider
@@ -221,7 +248,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
         if (mounted) {
           if (success) {
             // Navigate to Step 5
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteProfileStep5Page(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfileStep5Page(),));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -246,9 +273,17 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
   Widget build(BuildContext context) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SafeArea(
             child: Column(
@@ -621,10 +656,10 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                             vertical: AppDimensions.paddingM,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.warning,// Light yellow background
+                            color: AppColors.warningLight,// Light yellow background
                             borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
                             border: Border.all(
-                              color: AppColors.warning,
+                              color: AppColors.warningDark,
                               width: 1,
                             ),
                           ),
@@ -634,7 +669,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                               style: TextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textSecondary,
+                                color: AppColors.warningDark,
                                 height: 1.4,
                               ),
                               children: [
@@ -642,7 +677,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   text: 'Tip: Being available on weekends and setting competitive rates can help you get more bookings!',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.warning,
+                                    color: AppColors.warningDark,
                                   ),
                                 ),
 
@@ -711,7 +746,8 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                 ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

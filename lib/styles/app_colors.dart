@@ -9,6 +9,7 @@ class AppColors {
   static const Color primary = Color(0xFF3F51B6);
   static const Color primaryDark = Color(0xFF4A5AE8);
   static const Color primaryLight = Color(0xFF7B8CFF);
+  static const Color primaryInner = Color(0xFF1976D2);
 
   // Secondary Colors
   static const Color secondary = Color(0xFF00C896);
@@ -45,7 +46,8 @@ class AppColors {
   static const Color success = Color(0xFF00C896);
   static const Color successLight = Color(0xFFE8F8F5);
   static const Color warning = Color(0xFFFFA726);
-  static const Color warningLight = Color(0xFFFFF3E0);
+  static const Color warningLight = Color(0xFFF0F29C);
+  static const Color warningDark = Color(0xFF908D4B);
   static const Color error = Color(0xFFE53E3E);
   static const Color errorLight = Color(0xFFFEEBEE);
   static const Color info = Color(0xFF2196F3);

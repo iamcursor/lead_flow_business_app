@@ -70,12 +70,20 @@ class BookingModel {
       }
     }
     
-    // Format time from "14:00:00" to "2:00 PM"
+    // Format time from "14:00:00" to "2:00 PM" (ignores seconds and milliseconds)
     String formatTime(String? timeStr) {
       if (timeStr == null || timeStr.isEmpty) return '';
       try {
-        final parts = timeStr.split(':');
+        // Remove seconds and milliseconds if present (e.g., "14:00:00" or "14:00:00.000")
+        String cleanTimeStr = timeStr;
+        if (cleanTimeStr.contains('.')) {
+          // Remove milliseconds part
+          cleanTimeStr = cleanTimeStr.split('.').first;
+        }
+        
+        final parts = cleanTimeStr.split(':');
         if (parts.length >= 2) {
+          // Only use hour and minute, ignore seconds
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
           final period = hour >= 12 ? 'PM' : 'AM';

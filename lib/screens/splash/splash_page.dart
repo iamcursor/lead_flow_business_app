@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
-import '../auth/login_page.dart';
+import '../auth/choose_plan_page.dart';
 
 
 /// Splash Page
@@ -48,9 +48,8 @@ class _SplashPageState extends State<SplashPage>
   void _navigateToNext() {
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        // TODO: Check if user is logged in
-        // For now, navigate to welcome
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),));
+        // Navigate to Choose Plan page after splash screen
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ChoosePlanPage(),));
       }
     });
   }

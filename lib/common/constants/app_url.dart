@@ -34,6 +34,9 @@ class AppUrl{
   //Earning Endpoints
   static const String earnings = '$baseUrl/earnings/';
 
+  // Payment Endpoints
+  static const String createCheckoutSession = '$baseUrl/api/payments/create-checkout-session/';
+
   // Chat Endpoints
   static const String chatRooms = '$baseUrl/chat/api/rooms/';
   static const String chatMessages = '$baseUrl/chat/api/rooms/messages/';

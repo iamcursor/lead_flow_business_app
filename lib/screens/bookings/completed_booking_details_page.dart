@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:lead_flow_business/screens/bookings/bookings_page.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
 import '../../models/booking/booking_model.dart';
+import '../../providers/business_owner_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class CompletedBookingDetailsPage extends StatelessWidget {
   final BookingModel booking;
+  final List<String>? serviceNotes;
+  final List<Map<String, dynamic>>? extraCharges;
 
   const CompletedBookingDetailsPage({
     super.key,
     required this.booking,
+    this.serviceNotes,
+    this.extraCharges,
   });
 
   @override
@@ -328,17 +335,42 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
-          if (booking.completedServiceNotes != null && booking.completedServiceNotes!.isNotEmpty)
+          if (serviceNotes != null && serviceNotes!.isNotEmpty)
+            ...serviceNotes!.map((note) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: AppDimensions.verticalSpaceXS),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 16.sp,
+                      color: AppColors.success,
+                    ),
+                    SizedBox(width: AppDimensions.paddingS),
+                    Expanded(
+                      child: Text(
+                        note,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            })
+          else if (booking.completedServiceNotes != null && booking.completedServiceNotes!.isNotEmpty)
             ...booking.completedServiceNotes!.map((note) {
               return Padding(
                 padding: EdgeInsets.only(bottom: AppDimensions.verticalSpaceXS),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(
-                      "assets/images/success.png",
-                      height: 16.h,
-                      width: 16.w,
+                    Icon(
+                      Icons.check_circle,
+                      size: 16.sp,
+                      color: AppColors.success,
                     ),
                     SizedBox(width: AppDimensions.paddingS),
                     Expanded(
@@ -389,7 +421,30 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
-          if (booking.charges != null && booking.charges!.isNotEmpty)
+          if (extraCharges != null && extraCharges!.isNotEmpty)
+            ...extraCharges!.map((charge) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: AppDimensions.verticalSpaceS),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      charge['label']?.toString() ?? '',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      '\$${charge['amount']?.toString() ?? '0'}',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            })
+          else if (booking.charges != null && booking.charges!.isNotEmpty)
             ...booking.charges!.map((charge) {
               return Padding(
                 padding: EdgeInsets.only(bottom: AppDimensions.verticalSpaceS),
@@ -434,7 +489,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '\$${(booking.totalCharges ?? booking.price).toStringAsFixed(0)}',
+                '\$${_calculateTotalCharges().toStringAsFixed(0)}',
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -446,62 +501,130 @@ class CompletedBookingDetailsPage extends StatelessWidget {
     );
   }
 
+  double _calculateTotalCharges() {
+    if (extraCharges != null && extraCharges!.isNotEmpty) {
+      double total = booking.price;
+      for (var charge in extraCharges!) {
+        final amount = charge['amount'];
+        if (amount != null) {
+          total += (amount is num) ? amount.toDouble() : double.tryParse(amount.toString()) ?? 0.0;
+        }
+      }
+      return total;
+    } else if (booking.totalCharges != null) {
+      return booking.totalCharges!;
+    }
+    return booking.price;
+  }
+
   Widget _buildFeedbackCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: AppDimensions.shadowBlurRadius,
-            offset: Offset(0, AppDimensions.shadowOffset),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(AppDimensions.cardPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Customer Feedback',
-            style: AppTextStyles.titleLarge.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: AppDimensions.verticalSpaceS),
-          // Rating Stars
-          Row(
-            children: List.generate(5, (index) {
-              final rating = booking.customerRating ?? 0;
-              return Icon(
-                index < rating ? Icons.star : Icons.star_border,
-                color: AppColors.ratingActive,
-                size: AppDimensions.ratingStarSize,
-              );
-            }),
-          ),
-          SizedBox(height: AppDimensions.verticalSpaceS),
-          // Feedback Text
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(AppDimensions.paddingM),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusS),
-              border: Border.all(
-                color: AppColors.borderDark
-              )
-            ),
-            child: Text(
-              booking.customerFeedback ?? 'No feedback provided',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary,
+    return Consumer<BusinessOwnerProvider>(
+      builder: (context, provider, child) {
+        // Extract business profile from provider response
+        final apiResponse = provider.response;
+        Map<String, dynamic>? businessProfile;
+        
+        // Get data from API response
+        if (apiResponse != null) {
+          if (apiResponse['user'] != null) {
+            final user = apiResponse['user'] as Map<String, dynamic>?;
+            if (user != null && user['business_owner_profile'] != null) {
+              businessProfile = user['business_owner_profile'] as Map<String, dynamic>?;
+            }
+          } else if (apiResponse['id'] != null || apiResponse['business_owner_profile'] != null) {
+            businessProfile = apiResponse;
+          }
+        }
+        
+        // Extract rating from business profile
+        double? rating;
+        
+        if (businessProfile != null) {
+          if (businessProfile['rating'] != null) {
+            rating = businessProfile['rating'] is String
+                ? double.tryParse(businessProfile['rating'] as String) ?? 0.0
+                : (businessProfile['rating'] as num?)?.toDouble() ?? 0.0;
+          }
+        }
+        
+        // If rating is not available from provider, try to get from AuthProvider
+        if (rating == null || rating == 0.0) {
+          try {
+            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+            final authResponse = authProvider.response;
+            if (authResponse != null) {
+              final user = authResponse['user'] as Map<String, dynamic>?;
+              if (user != null && user['business_owner_profile'] != null) {
+                final profile = user['business_owner_profile'] as Map<String, dynamic>?;
+                if (profile != null && profile['rating'] != null) {
+                  rating = profile['rating'] is String
+                      ? double.tryParse(profile['rating'] as String) ?? 0.0
+                      : (profile['rating'] as num?)?.toDouble() ?? 0.0;
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore errors
+          }
+        }
+        
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadowLight,
+                blurRadius: AppDimensions.shadowBlurRadius,
+                offset: Offset(0, AppDimensions.shadowOffset),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+          padding: EdgeInsets.all(AppDimensions.cardPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Customer Feedback',
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(height: AppDimensions.verticalSpaceS),
+              // Rating Stars - showing business owner's overall rating
+              Row(
+                children: List.generate(5, (index) {
+                  final ratingValue = rating ?? 0.0;
+                  return Icon(
+                    index < ratingValue.round() ? Icons.star : Icons.star_border,
+                    color: AppColors.ratingActive,
+                    size: AppDimensions.ratingStarSize,
+                  );
+                }),
+              ),
+              SizedBox(height: AppDimensions.verticalSpaceS),
+              // Feedback Text
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(AppDimensions.paddingM),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+                  border: Border.all(
+                    color: AppColors.borderDark
+                  )
+                ),
+                child: Text(
+                  booking.customerFeedback ?? 'No feedback provided',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

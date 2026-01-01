@@ -26,11 +26,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background, // Light purple/lavender background
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return Stack(
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return PopScope(
+          canPop: !authProvider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (authProvider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background, // Light purple/lavender background
+            body: Stack(
             children: [
               // Main Content
               SingleChildScrollView(
@@ -185,14 +193,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
+          ),
+          )
+        );
+      },
     );
   }
 
   void _handleResetPassword() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<AuthProvider>(context, listen: false);
 
       if (!provider.acceptTerms) {

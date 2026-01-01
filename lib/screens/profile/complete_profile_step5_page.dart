@@ -89,6 +89,9 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
   }
 
   Future<void> _handleSubmit() async {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+    
     final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
 
     if (provider.isLoading) return;
@@ -224,9 +227,17 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
   Widget build(BuildContext context) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
+        return PopScope(
+          canPop: !provider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (provider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SafeArea(
             child: Column(
@@ -483,10 +494,10 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                           vertical: AppDimensions.paddingM,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.warning,// Light yellow background
+                          color: AppColors.warningLight,// Light yellow background
                           borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
                           border: Border.all(
-                            color: AppColors.warning,
+                            color: AppColors.warningDark,
                             width: 1,
                           ),
                         ),
@@ -496,7 +507,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                             style: TextStyle(
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
+                              color: AppColors.warningDark,
                               height: 1.4,
                             ),
                             children: [
@@ -504,7 +515,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                 text: 'Note: Please provide all sections before proceeding. Incomplete profile receive fewer bookings',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.warning,
+                                  color: AppColors.warningDark,
                                 ),
                               ),
 
@@ -620,7 +631,8 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                 ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

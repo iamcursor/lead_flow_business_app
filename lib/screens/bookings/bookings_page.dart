@@ -142,12 +142,12 @@ class _BookingsPageState extends State<BookingsPage> {
                                 booking: booking,
                                 onAccept: () async {
                                   final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-                                  final success = await bookingProvider.updateBookingStatus(
+                                  final updatedBooking = await bookingProvider.updateBookingStatus(
                                     bookingId: booking.bookingId,
                                     status: 'confirmed',
                                   );
                                   
-                                  if (success) {
+                                  if (updatedBooking != null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Booking accepted successfully!'),
@@ -167,12 +167,12 @@ class _BookingsPageState extends State<BookingsPage> {
                                 },
                                 onReject: () async {
                                   final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-                                  final success = await bookingProvider.updateBookingStatus(
+                                  final updatedBooking = await bookingProvider.updateBookingStatus(
                                     bookingId: booking.bookingId,
                                     status: 'rejected',
                                   );
                                   
-                                  if (success) {
+                                  if (updatedBooking != null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Booking rejected successfully!'),
@@ -350,7 +350,7 @@ class _BookingCard extends StatelessWidget {
   Color _getStatusTextColor() {
     switch (booking.status.toLowerCase()) {
       case 'pending':
-        return AppColors.warning;
+        return AppColors.warningDark;
       case 'confirmed':
         return const Color(0xFF616161); // Grey text color for confirmed status
       case 'in_progress':
@@ -388,7 +388,7 @@ class _BookingCard extends StatelessWidget {
   Color _getStatusBorderColor() {
     switch (booking.status.toLowerCase()) {
       case 'pending':
-        return AppColors.warning;
+        return AppColors.warningDark;
       case 'confirmed':
         return const Color(0xFF616161); // Grey border color for confirmed status
       case 'in_progress':

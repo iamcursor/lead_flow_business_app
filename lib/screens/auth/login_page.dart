@@ -51,12 +51,20 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<AuthProvider>(
-          builder: (context, authProvider, child) {
-            return Stack(
-        children:[
-          SingleChildScrollView(
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return PopScope(
+          canPop: !authProvider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (authProvider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            body: Stack(
+              children: [
+                SingleChildScrollView(
             padding: EdgeInsets.all(AppDimensions.screenPaddingTop),
             child: Form(
               key: _formKey,
@@ -301,15 +309,19 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-        ]
-      );
-        }
-  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   void _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<AuthProvider>(context, listen: false);
 
       // Create model from your controllers
@@ -346,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
             // Use default message if parsing fails
           }
         } else if (errorString.contains('business owner') || errorString.contains('User is not a business owner')) {
-          errorMessage = 'Only business owners can access this app. Please use the customer app instead.';
+          errorMessage = 'Only business owners can access this app.';
         } else if (errorString.contains('Forbidden')) {
           errorMessage = 'Access denied. Only business owners can use this app.';
         }
@@ -418,40 +430,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // void _handleGoogleSignIn(BuildContext context) async {
-  //   final provider = Provider.of<AuthProvider>(context, listen: false);
-  //
-  //   try {
-  //     final success = await provider.signInWithGoogle();
-  //
-  //     if (!success) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('Google Sign-In failed. Please try again'),
-  //         ),
-  //       );
-  //       return;
-  //     }
-  //
-  //     // Google Sign-In successful and backend authenticated
-  //     // Token is now stored in provider.authToken
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => const MainNavigationScreen(initialIndex: 0),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Google Sign-In failed: ${e.toString()}'),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //   }
-  // }
+
 
   void _handleGoogleSignIn(BuildContext context) async {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+    
     final provider = Provider.of<AuthProvider>(context, listen: false);
 
     try {

@@ -31,11 +31,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Consumer<BusinessOwnerProvider>(
-        builder: (context, businessOwnerProvider, child) {
-          return Stack(
+    return Consumer<BusinessOwnerProvider>(
+      builder: (context, businessOwnerProvider, child) {
+        return PopScope(
+          canPop: !businessOwnerProvider.isLoading,
+          onPopInvoked: (didPop) {
+            // Prevent back navigation when loading
+            if (businessOwnerProvider.isLoading && didPop) {
+              // This shouldn't happen due to canPop, but just in case
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Stack(
             children: [
               SingleChildScrollView(
                 padding: EdgeInsets.all(AppDimensions.screenPaddingTop),
@@ -226,14 +234,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
+          ),
+          )
+        );
+      },
     );
   }
 
   void _handleChangePassword() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Hide keyboard when API is hit
+      FocusScope.of(context).unfocus();
+      
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
 
       // Create ChangePasswordModel from form data
