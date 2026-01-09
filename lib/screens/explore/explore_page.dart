@@ -4,6 +4,7 @@ import 'package:lead_flow_business/screens/profile/profile_page.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
+import '../../providers/dashboard_provider.dart';
 import '../../models/booking/booking_model.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
@@ -13,43 +14,30 @@ import '../../widgets/explore/new_job_request_card.dart';
 import '../../widgets/explore/referral_bonus_card.dart';
 import '../../widgets/explore/today_overview_section.dart';
 
-class ExplorePage extends StatefulWidget {
+class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
-}
-
-class _ExplorePageState extends State<ExplorePage> {
-  bool _isAvailableForWork = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize availability status from login response
+  Widget build(BuildContext context) {
+    // Initialize bookings, availability, and dashboard on first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final loginResponse = authProvider.response;
-      if (loginResponse != null && loginResponse['user'] != null) {
-        final user = loginResponse['user'] as Map<String, dynamic>?;
-        if (user != null && user['business_owner_profile'] != null) {
-          final businessProfile = user['business_owner_profile'] as Map<String, dynamic>?;
-          final availabilityStatus = businessProfile?['availability_status']?.toString() ?? 'available';
-          setState(() {
-            _isAvailableForWork = availabilityStatus.toLowerCase() == 'available';
-          });
-        }
-      }
-      // Fetch bookings to check for new job requests
       final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+      final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+      
+      // Initialize availability from login response if not already set
+      authProvider.initializeAvailability();
+      
+      // Fetch bookings
       bookingProvider.fetchBookings();
+      
+      // Fetch dashboard data
+      dashboardProvider.fetchDashboard();
     });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final loginResponse = authProvider.response;
+    return Consumer3<AuthProvider, BookingProvider, DashboardProvider>(
+      builder: (context, authProvider, bookingProvider, dashboardProvider, child) {
+        final loginResponse = authProvider.response;
     
     // Extract user data from login response
     Map<String, dynamic>? user;
@@ -77,12 +65,10 @@ class _ExplorePageState extends State<ExplorePage> {
         ? (maxDistanceMiles is int ? maxDistanceMiles.toDouble() : (maxDistanceMiles as num).toDouble()) * 1.60934
         : 10.0;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Consumer<BookingProvider>(
-          builder: (context, bookingProvider, child) {
-            return Stack(
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: Stack(
               children: [
                 SingleChildScrollView(
                   child: Column(
@@ -98,12 +84,10 @@ class _ExplorePageState extends State<ExplorePage> {
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       AvailableForWorkCard(
-                        isAvailable: _isAvailableForWork,
+                        isAvailable: authProvider.isAvailableForWork,
                         radius: '${radiusKm.toStringAsFixed(1)} km radius',
                         onToggleChanged: (value) {
-                          setState(() {
-                            _isAvailableForWork = value;
-                          });
+                          authProvider.setIsAvailableForWork(value);
                           // TODO: Update availability status via API
                         },
                       ),
@@ -196,19 +180,18 @@ class _ExplorePageState extends State<ExplorePage> {
                         },
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceS),
-                      TodayOverviewSection(
-                        todayJobs: 4,
-                        totalCompleted: businessProfile?['review_count'] is int 
-                            ? businessProfile!['review_count'] as int
-                            : (businessProfile?['review_count'] is num 
-                                ? (businessProfile!['review_count'] as num).toInt() 
-                                : 0),
-                        avgRating: businessProfile?['rating'] != null
-                            ? (businessProfile!['rating'] is String
-                                ? double.tryParse(businessProfile['rating'] as String) ?? 0.0
-                                : (businessProfile['rating'] as num?)?.toDouble() ?? 0.0)
-                            : 0.0,
-                        weeklyEarning: '\$3,200',
+                      Builder(
+                        builder: (context) {
+                          // Use dashboard data if available, otherwise use defaults
+                          final dashboardData = dashboardProvider.dashboardData;
+                          
+                          return TodayOverviewSection(
+                            todayJobs: dashboardData?.todayJobs ?? 0,
+                            totalCompleted: dashboardData?.totalCompleted ?? 0,
+                            avgRating: dashboardData?.avgRating ?? 0.0,
+                            weeklyEarning: dashboardData?.thisWeekEarning ?? '0',
+                          );
+                        },
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceL),
                       ReferralBonusCard(
@@ -220,7 +203,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   ),
                 ),
                 // Centered Loader Overlay
-                if (bookingProvider.isLoading)
+                if (bookingProvider.isLoading || dashboardProvider.isLoading)
                   Positioned.fill(
                     child: Container(
                       color: Colors.transparent,
@@ -239,10 +222,13 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                   ),
               ],
-            );
+
+            )
+            )
+        );
           },
-        ),
-      ),
-    );
+        );
+
+
   }
 }

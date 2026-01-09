@@ -14,9 +14,11 @@ class AppUrl{
   static const String verifyOTP = '$baseUrl/users/verify-otp/';
   static const String resendOTP = '$baseUrl/auth/resend-otp';
   static const String deleteUser = '$baseUrl/users/delete-user/';
+  static const String appleSignIn = '$baseUrl/users/apple-signin/business-owner/';
   
   // Bookings
   static const String bookings = '$baseUrl/api/bookings/';
+  static const String dashboard = '$baseUrl/api/bookings/dashboard/';
   static String updateBookingStatus(String bookingId) => '$baseUrl/booking/$bookingId/update-status/';
 
   // User Profile Endpoints

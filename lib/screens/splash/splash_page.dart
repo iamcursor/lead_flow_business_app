@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lead_flow_business/screens/auth/login_page.dart';
 
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
@@ -49,7 +50,7 @@ class _SplashPageState extends State<SplashPage>
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         // Navigate to Choose Plan page after splash screen
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ChoosePlanPage(),));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage(),));
       }
     });
   }
@@ -72,9 +73,9 @@ class _SplashPageState extends State<SplashPage>
                     // App Logo
                     Image.asset(
                       "assets/images/logo.png",
-                      width: 250,
-                      height: 250,
-                      color: AppColors.primary,
+                      width: 250.w,
+                      height: 250.w,
+
                     ),
 
                     SizedBox(height: AppDimensions.verticalSpaceXXL),

@@ -138,6 +138,137 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
     }
   }
 
+  // Validate ID card analysis against user input and return list of mismatched fields
+  List<String> _validateIdCardAnalysis(Map<String, dynamic> analysisResult) {
+    final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
+    final details = analysisResult['details'] as Map<String, dynamic>?;
+    final List<String> errors = [];
+    
+    if (details == null || details['extracted_cnic_details'] == null) {
+      errors.add('ID card information could not be extracted. Please ensure the ID card image is clear and try again.');
+      return errors;
+    }
+    
+    final extractedDetails = details['extracted_cnic_details'] as Map<String, dynamic>;
+    
+    // Check if information is missing
+    final extractedName = extractedDetails['name']?.toString()?.trim();
+    final extractedDob = extractedDetails['date_of_birth']?.toString()?.trim();
+    final extractedGender = extractedDetails['gender']?.toString()?.trim();
+    
+    if (extractedName == null || extractedName.isEmpty) {
+      errors.add('Name is missing from ID card');
+    }
+    if (extractedDob == null || extractedDob.isEmpty) {
+      errors.add('Date of birth is missing from ID card');
+    }
+    if (extractedGender == null || extractedGender.isEmpty) {
+      errors.add('Gender is missing from ID card');
+    }
+    
+    if (errors.isNotEmpty) {
+      return errors;
+    }
+    
+    // Compare with user input
+    final userName = provider.fullName?.trim() ?? '';
+    final userDob = provider.selectedDate;
+    final userGender = provider.selectedGender?.trim() ?? '';
+    
+    // Normalize names for comparison (case insensitive, remove extra spaces)
+    String normalizeName(String name) {
+      return name.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+    }
+    
+    // Normalize gender for comparison
+    String normalizeGender(String gender) {
+      return gender.toLowerCase().trim();
+    }
+    
+    // Parse extracted DOB (could be in various formats)
+    DateTime? parseExtractedDob(String? dobString) {
+      if (dobString == null || dobString.isEmpty) return null;
+      try {
+        // Try different date formats
+        final parts = dobString.replaceAll('/', '-').split('-');
+        if (parts.length == 3) {
+          // Try different orderings
+          List<int?> yearMonthDay = [];
+          for (var part in parts) {
+            yearMonthDay.add(int.tryParse(part.trim()));
+          }
+          
+          if (yearMonthDay[0] != null && yearMonthDay[1] != null && yearMonthDay[2] != null) {
+            // Try yyyy-MM-dd first
+            if (yearMonthDay[0]! > 1900 && yearMonthDay[0]! < 2100) {
+              return DateTime(yearMonthDay[0]!, yearMonthDay[1]!, yearMonthDay[2]!);
+            }
+            // Try dd-MM-yyyy
+            if (yearMonthDay[2]! > 1900 && yearMonthDay[2]! < 2100) {
+              return DateTime(yearMonthDay[2]!, yearMonthDay[1]!, yearMonthDay[0]!);
+            }
+            // Try MM-dd-yyyy
+            if (yearMonthDay[2]! > 1900 && yearMonthDay[2]! < 2100) {
+              return DateTime(yearMonthDay[2]!, yearMonthDay[0]!, yearMonthDay[1]!);
+            }
+          }
+        }
+        // Try parsing as ISO format
+        return DateTime.parse(dobString);
+      } catch (_) {
+        return null;
+      }
+    }
+    
+    // Compare name
+    if (userName.isNotEmpty && extractedName != null && extractedName.isNotEmpty) {
+      if (normalizeName(userName) != normalizeName(extractedName)) {
+        errors.add('Name does not match');
+      }
+    }
+    
+    // Compare date of birth
+    if (userDob != null && extractedDob != null && extractedDob.isNotEmpty) {
+      final extractedDobDate = parseExtractedDob(extractedDob);
+      if (extractedDobDate != null) {
+        // Compare dates (ignore time)
+        if (userDob.year != extractedDobDate.year ||
+            userDob.month != extractedDobDate.month ||
+            userDob.day != extractedDobDate.day) {
+          errors.add('Date of birth does not match');
+        }
+      }
+      // If we can't parse the date, we skip the comparison (don't show format error)
+    }
+    
+    // Compare gender
+    if (userGender.isNotEmpty && extractedGender != null && extractedGender.isNotEmpty) {
+      final normalizedUserGender = normalizeGender(userGender);
+      final normalizedExtractedGender = normalizeGender(extractedGender);
+      
+      // Handle different gender representations
+      final genderMap = {
+        'male': ['male', 'm', 'man', 'masculine'],
+        'female': ['female', 'f', 'woman', 'feminine'],
+      };
+      
+      bool gendersMatch = false;
+      for (var key in genderMap.keys) {
+        if (genderMap[key]!.contains(normalizedUserGender) && 
+            genderMap[key]!.contains(normalizedExtractedGender)) {
+          gendersMatch = true;
+          break;
+        }
+      }
+      
+      if (!gendersMatch && normalizedUserGender != normalizedExtractedGender) {
+        errors.add('Gender does not match');
+      }
+    }
+    
+    return errors;
+  }
+
   void _showIdCardVerificationDialog(Map<String, dynamic> analysisResult) {
     final verified = analysisResult['verified'] as bool? ?? false;
     final message = analysisResult['message'] as String? ?? '';
@@ -401,6 +532,30 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
           ),
         );
         return;
+      }
+      
+      // If ID type is "ID Card", validate that analysis matches user input
+      if (provider.selectedIdType == 'ID Card' && provider.idCardAnalysisResult != null) {
+        final validationErrors = _validateIdCardAnalysis(provider.idCardAnalysisResult!);
+        if (validationErrors.isNotEmpty) {
+          // Show specific error messages for each field that doesn't match
+          String errorMessage = 'Please correct information according to ID card:\n';
+          errorMessage += validationErrors.map((error) => '• $error').join('\n');
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 6),
+              action: SnackBarAction(
+                label: 'OK',
+                textColor: AppColors.textOnPrimary,
+                onPressed: () {},
+              ),
+            ),
+          );
+          return;
+        }
       }
 
       if (provider.isLoading) return;

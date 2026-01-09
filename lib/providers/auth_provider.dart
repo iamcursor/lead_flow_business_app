@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../models/auth/login_model.dart';
 import '../models/auth/reset_password_model.dart';
@@ -51,6 +52,28 @@ class AuthProvider with ChangeNotifier {
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  // Availability status
+  bool _isAvailableForWork = true;
+  bool get isAvailableForWork => _isAvailableForWork;
+
+  void setIsAvailableForWork(bool value) {
+    _isAvailableForWork = value;
+    notifyListeners();
+  }
+
+  // Initialize availability from login response
+  void initializeAvailability() {
+    if (_response != null && _response!['user'] != null) {
+      final user = _response!['user'] as Map<String, dynamic>?;
+      if (user != null && user['business_owner_profile'] != null) {
+        final businessProfile = user['business_owner_profile'] as Map<String, dynamic>?;
+        final availabilityStatus = businessProfile?['availability_status']?.toString() ?? 'available';
+        _isAvailableForWork = availabilityStatus.toLowerCase() == 'available';
+        notifyListeners();
+      }
+    }
+  }
 
   // Update response with new data (for profile updates)
   void updateResponse(Map<String, dynamic> newData) {
@@ -206,6 +229,9 @@ class AuthProvider with ChangeNotifier {
       }
 
       _response = data;
+      
+      // Initialize availability status from login response
+      initializeAvailability();
       
       // Verify user is a business owner
       String? userRole;
@@ -425,6 +451,21 @@ class AuthProvider with ChangeNotifier {
         return false;
       }
 
+      // Validate that required information is available from Google account
+      if (googleUser.email == null || googleUser.email!.isEmpty) {
+        _isLoading = false;
+        _errorMessage = "Email is missing from your Google account. Please use a Google account with a verified email address.";
+        notifyListeners();
+        return false;
+      }
+
+      if (googleUser.displayName == null || googleUser.displayName!.isEmpty) {
+        _isLoading = false;
+        _errorMessage = "Name is missing from your Google account. Please update your Google profile with a name and try again.";
+        notifyListeners();
+        return false;
+      }
+
       // Step 4: Get authentication tokens
       final tokens = await GoogleSignInService.getAuthenticationTokens(googleUser);
 
@@ -467,6 +508,9 @@ class AuthProvider with ChangeNotifier {
       // Step 7: Store the backend token and user data
       _authToken = backendResponse['token']; // Get token from backend
       _response = backendResponse;
+      
+      // Initialize availability status from Google sign-in response
+      initializeAvailability();
 
       if (_authToken == null || _authToken!.isEmpty) {
         _isLoading = false;
@@ -487,6 +531,108 @@ class AuthProvider with ChangeNotifier {
       _errorMessage = e.toString();
       notifyListeners();
       print("Google Sign-In error → $e");
+      return false;
+    }
+  }
+
+  Future<bool> signInWithApple() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Step 1: Request Apple Sign-In credentials
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      if (appleCredential == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Step 2: Extract user information
+      final identityToken = appleCredential.identityToken;
+      final authorizationCode = appleCredential.authorizationCode;
+      final email = appleCredential.email;
+      final userId = appleCredential.userIdentifier;
+
+      // Combine first and last name if available
+      String? fullName;
+      if (appleCredential.givenName != null || appleCredential.familyName != null) {
+        fullName = [
+          appleCredential.givenName,
+          appleCredential.familyName,
+        ].where((name) => name != null && name.isNotEmpty).join(' ');
+      }
+
+      if (identityToken == null || authorizationCode == null) {
+        _isLoading = false;
+        _errorMessage = "Failed to get Apple authentication tokens";
+        notifyListeners();
+        print("Failed to get Apple authentication tokens");
+        return false;
+      }
+
+      // Step 3: Get FCM token
+      final fcmToken = await NotificationService().getFcmToken();
+      print("FCM Token retrieved: ${fcmToken ?? 'null'}");
+
+      // Step 4: Send credentials to backend and get your app's token
+      final backendResponse = await SignupService.appleSignIn(
+        identityToken: identityToken,
+        authorizationCode: authorizationCode,
+        email: email,
+        fullName: fullName,
+        userId: userId,
+        fcmToken: fcmToken, // Send FCM token
+      );
+
+      if (backendResponse == null) {
+        _isLoading = false;
+        _errorMessage = "Failed to authenticate with backend";
+        notifyListeners();
+        print("Failed to authenticate with backend");
+        return false;
+      }
+
+      if (backendResponse['error'] != null || backendResponse['status'] == 'error') {
+        _isLoading = false;
+        _errorMessage = backendResponse['message'] ?? 'Authentication failed';
+        notifyListeners();
+        return false;
+      }
+
+      // Step 5: Store the backend token and user data
+      _authToken = backendResponse['token']; // Get token from backend
+      _response = backendResponse;
+
+      // Initialize availability status from Apple sign-in response
+      initializeAvailability();
+
+      if (_authToken == null || _authToken!.isEmpty) {
+        _isLoading = false;
+        _errorMessage = "No token received from backend";
+        notifyListeners();
+        return false;
+      }
+
+      // Save token to SharedPreferences - this is critical for API calls
+      await _saveTokenToStorage(_authToken!);
+
+      _isLoading = false;
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      print("Apple Sign-In error → $e");
       return false;
     }
   }

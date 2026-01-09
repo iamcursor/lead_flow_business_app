@@ -12,6 +12,40 @@ import '../models/auth/reset_password_model.dart';
 import '../models/auth/send_otp_model.dart';
 import '../models/auth/verify_otp_model.dart';
 
+
+String? _extractEmailFromJWT(String? identityToken) {
+  if (identityToken == null || identityToken.isEmpty) return null;
+
+  try {
+    // JWT format: header.payload.signature
+    final parts = identityToken.split('.');
+    if (parts.length != 3) return null;
+
+    // Decode the payload (second part)
+    final payload = parts[1];
+
+    // Add padding if needed (base64url decoding)
+    String normalizedPayload = payload;
+    final remainder = payload.length % 4;
+    if (remainder > 0) {
+      normalizedPayload += '=' * (4 - remainder);
+    }
+
+    // Replace URL-safe characters
+    normalizedPayload = normalizedPayload.replaceAll('-', '+').replaceAll('_', '/');
+
+    // Decode base64
+    final decodedBytes = base64Decode(normalizedPayload);
+    final decodedString = utf8.decode(decodedBytes);
+    final payloadMap = jsonDecode(decodedString) as Map<String, dynamic>;
+
+    // Extract email from payload
+    return payloadMap['email'] as String?;
+  } catch (e) {
+    print('Error extracting email from JWT: $e');
+    return null;
+  }
+}
 /// Sign Up Service
 /// Handles user registration API calls
 class SignupService {
@@ -198,6 +232,47 @@ class SignupService {
       return response as Map<String, dynamic>?;
     } catch (e) {
       print('Google Sign-In API error: $e');
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> appleSignIn({
+    required String identityToken,
+    required String authorizationCode,
+    String? email,
+    String? fullName,
+    String? userId,
+    String? fcmToken,
+  }) async {
+    try {
+      // Extract email from JWT if not provided by Apple
+      String? finalEmail = email;
+      if (finalEmail == null || finalEmail.isEmpty) {
+        finalEmail = _extractEmailFromJWT(identityToken);
+      }
+
+      // Prepare request body
+      // Note: email might be null on first sign-in if user chose to hide it
+      // We try to extract it from identity_token (JWT), but backend should also handle this
+      final requestBody = {
+        'identity_token': identityToken,
+        'authorization_code': authorizationCode,
+        'email': finalEmail ?? '', // Always include email field (extract from JWT if needed)
+        if (fullName != null && fullName.isNotEmpty) 'name': fullName,
+        if (userId != null && userId.isNotEmpty) 'apple_user_id': userId,
+        'fcm_token': fcmToken ?? '', // Always include fcm_token, even if empty
+      };
+
+      print('Apple Sign-In Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await RequestProvider.post(
+        url: AppUrl.appleSignIn,
+        body: jsonEncode(requestBody),
+      );
+
+      return response as Map<String, dynamic>?;
+    } catch (e) {
+      print('Apple Sign-In API error: $e');
       return null;
     }
   }

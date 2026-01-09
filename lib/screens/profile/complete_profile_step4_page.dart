@@ -62,15 +62,65 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
       },
     );
     if (picked != null && picked != provider.startTime) {
+      // If end time is already set, check if new start time is valid
+      if (provider.endTime != null) {
+        // Convert TimeOfDay to minutes for easier comparison
+        int timeToMinutes(TimeOfDay time) {
+          return time.hour * 60 + time.minute;
+        }
+        
+        final startMinutes = timeToMinutes(picked);
+        final endMinutes = timeToMinutes(provider.endTime!);
+        
+        // Check if new start time is greater than or equal to end time
+        if (startMinutes >= endMinutes) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Start time must be less than end time. End time will be cleared.'),
+              backgroundColor: AppColors.error,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          // Clear end time since it's no longer valid
+          provider.setEndTime(null);
+        } else {
+          // Check if end time is still within 24 hours
+          final timeDifference = endMinutes - startMinutes;
+          if (timeDifference > 1440) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('End time exceeds 24 hours from new start time. End time will be cleared.'),
+                backgroundColor: AppColors.error,
+                duration: Duration(seconds: 3),
+              ),
+            );
+            // Clear end time since it's no longer valid
+            provider.setEndTime(null);
+          }
+        }
+      }
+      
       provider.setStartTime(picked);
     }
   }
 
   Future<void> _selectEndTime(BuildContext context) async {
     final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
+    
+    // Check if start time is set
+    if (provider.startTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select start time first'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: provider.endTime ?? TimeOfDay.now(),
+      initialTime: provider.endTime ?? provider.startTime!,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -85,7 +135,44 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
         );
       },
     );
+    
     if (picked != null && picked != provider.endTime) {
+      final startTime = provider.startTime!;
+      
+      // Convert TimeOfDay to minutes for easier comparison
+      int timeToMinutes(TimeOfDay time) {
+        return time.hour * 60 + time.minute;
+      }
+      
+      final startMinutes = timeToMinutes(startTime);
+      final endMinutes = timeToMinutes(picked);
+      
+      // Check if end time is less than start time (same day)
+      if (endMinutes <= startMinutes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('End time must be greater than start time'),
+            backgroundColor: AppColors.error,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+      
+      // Check if end time is within 24 hours (1440 minutes)
+      final timeDifference = endMinutes - startMinutes;
+      if (timeDifference > 1440) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('End time must be within 24 hours of start time'),
+            backgroundColor: AppColors.error,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+      
+      // Validation passed, set the end time
       provider.setEndTime(picked);
     }
   }

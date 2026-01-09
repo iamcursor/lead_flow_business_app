@@ -68,7 +68,7 @@ class TodayOverviewSection extends StatelessWidget {
                   Expanded(
                     child: StatCardWidget(
                       icon: Icons.star_outline,
-                      iconColor: AppColors.warning,
+                      iconColor: AppColors.warningDark,
                       iconBackgroundColor: AppColors.warningLight,
                       value: avgRating.toStringAsFixed(1),
                       label: 'Avg. Rating',

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lead_flow_business/screens/profile/complete_profile_page.dart';
@@ -182,6 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Column(
                         children: [
                           // Google Login Button
+                          if (Platform.isAndroid)
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
@@ -221,6 +224,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           SizedBox(height: AppDimensions.verticalSpaceM),
                           // Apple Login Button
+                          if(Platform.isIOS)
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
@@ -396,9 +400,12 @@ class _RegisterPageState extends State<RegisterPage> {
       final success = await provider.signInWithGoogle();
 
       if (!success) {
+        final errorMessage = provider.errorMessage ?? 'Google Sign-In failed. Please try again';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google Sign-In failed. Please try again'),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
         return;

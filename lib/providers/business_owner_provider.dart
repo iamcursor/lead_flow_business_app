@@ -537,7 +537,7 @@ class BusinessOwnerProvider with ChangeNotifier {
       _updateStep2Progress();
       notifyListeners();
     } catch (e) {
-      // Only update if the selected category is still the same
+      // Only update if the selected category is still the same (prevent race condition)
       if (_selectedServiceCategory == selectedCategoryName) {
         _isLoadingSubCategories = false;
         _subCategories = [];

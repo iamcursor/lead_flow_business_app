@@ -7,6 +7,7 @@ import 'package:lead_flow_business/providers/business_owner_provider.dart';
 import 'package:lead_flow_business/providers/earnings_provider.dart';
 import 'package:lead_flow_business/providers/chat_provider.dart';
 import 'package:lead_flow_business/providers/plan_provider.dart';
+import 'package:lead_flow_business/providers/dashboard_provider.dart';
 import 'package:lead_flow_business/screens/splash/splash_page.dart';
 import 'package:lead_flow_business/styles/theme.dart';
 
@@ -38,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EarningsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => PlanProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
 
       ],
       child: const MyApp(),

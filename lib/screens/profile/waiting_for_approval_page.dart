@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
+import '../../screens/auth/login_page.dart';
 import 'dart:async';
 
 /// Waiting for Approval Page
@@ -56,9 +57,21 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          // Navigate to login screen when back button is pressed
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false, // Remove all previous routes
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
           builder: (context, child) {
@@ -117,6 +130,7 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
             );
           },
         ),
+      ),
       ),
     );
   }

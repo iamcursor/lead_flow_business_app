@@ -24,10 +24,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch business owner profile when page loads
+    // Fetch business owner profile when page loads only if not already loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
-      provider.fetchBusinessOwnerProfile();
+      // Only fetch if profile hasn't been loaded yet
+      if (provider.response == null) {
+        provider.fetchBusinessOwnerProfile();
+      }
     });
   }
 

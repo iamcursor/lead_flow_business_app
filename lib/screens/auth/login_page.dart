@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lead_flow_business/screens/auth/forgot_password_page.dart';
@@ -176,6 +177,8 @@ class _LoginPageState extends State<LoginPage> {
                   Column(
                     children: [
                       // Google Login Button
+
+                      if (Platform.isAndroid)
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
@@ -216,10 +219,11 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceM),
                       // Apple Login Button
+                      if (Platform.isIOS)
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => _handleAppleSignIn(context),
                           style: OutlinedButton.styleFrom(
                             backgroundColor: AppColors.background,
                             foregroundColor: AppColors.primary,
@@ -442,9 +446,12 @@ class _LoginPageState extends State<LoginPage> {
       final success = await provider.signInWithGoogle();
 
       if (!success) {
+        final errorMessage = provider.errorMessage ?? 'Google Sign-In failed. Please try again';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google Sign-In failed. Please try again'),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
         return;
@@ -542,6 +549,122 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Google Sign-In failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _handleAppleSignIn(BuildContext context) async {
+    // Hide keyboard when API is hit
+    FocusScope.of(context).unfocus();
+
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      final success = await provider.signInWithApple();
+
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Apple Sign-In failed. Please try again'),
+          ),
+        );
+        return;
+      }
+
+      // Apple Sign-In successful and backend authenticated
+      // Token is now stored in provider.authToken
+
+      // Check if user has a complete profile by checking ALL required fields in business_owner_profile
+      final response = provider.response;
+      bool hasCompleteProfile = false;
+      String? verificationStatus;
+      Map<String, dynamic>? profile;
+
+      if (response != null && response['user'] != null) {
+        final user = response['user'] as Map<String, dynamic>?;
+
+        // Check if business_owner_profile exists
+        if (user?['business_owner_profile'] != null) {
+          profile = user!['business_owner_profile'] as Map<String, dynamic>?;
+
+          // Get verification status from profile
+          verificationStatus = profile?['verification_status']?.toString().toLowerCase() ??
+              profile?['approval_status']?.toString().toLowerCase() ??
+              profile?['status']?.toString().toLowerCase();
+
+          // Check if ALL key required fields are filled (not null/empty)
+          final hasGender = profile?['gender'] != null && profile!['gender'].toString().isNotEmpty;
+          final hasDateOfBirth = profile?['date_of_birth'] != null && profile!['date_of_birth'].toString().isNotEmpty;
+          final hasPrimaryServiceCategory = profile?['primary_service_category'] != null && profile!['primary_service_category'].toString().isNotEmpty;
+          final hasCity = profile?['city'] != null && profile!['city'].toString().isNotEmpty;
+          final hasYearsOfExperience = profile?['years_of_experience'] != null;
+          final hasIdProofType = profile?['id_proof_type'] != null && profile!['id_proof_type'].toString().isNotEmpty;
+          final hasRecentPhoto = profile?['recent_photo'] != null && profile!['recent_photo'].toString().isNotEmpty;
+          final hasAlternatePhone = profile?['alternate_phone'] != null && profile!['alternate_phone'].toString().isNotEmpty;
+
+          // Profile is complete ONLY if ALL required fields are filled
+          hasCompleteProfile = hasGender && hasDateOfBirth && hasPrimaryServiceCategory &&
+              hasCity && hasYearsOfExperience && hasIdProofType &&
+              hasRecentPhoto && hasAlternatePhone;
+        }
+      }
+
+      // Check root level business_owner_profile as fallback
+      if (profile == null && response != null && response['business_owner_profile'] != null) {
+        profile = response['business_owner_profile'] as Map<String, dynamic>?;
+        verificationStatus = profile?['verification_status']?.toString().toLowerCase() ??
+            profile?['approval_status']?.toString().toLowerCase() ??
+            profile?['status']?.toString().toLowerCase();
+
+        // Check if ALL key required fields are filled (not null/empty)
+        final hasGender = profile?['gender'] != null && profile!['gender'].toString().isNotEmpty;
+        final hasDateOfBirth = profile?['date_of_birth'] != null && profile!['date_of_birth'].toString().isNotEmpty;
+        final hasPrimaryServiceCategory = profile?['primary_service_category'] != null && profile!['primary_service_category'].toString().isNotEmpty;
+        final hasCity = profile?['city'] != null && profile!['city'].toString().isNotEmpty;
+        final hasYearsOfExperience = profile?['years_of_experience'] != null;
+        final hasIdProofType = profile?['id_proof_type'] != null && profile!['id_proof_type'].toString().isNotEmpty;
+        final hasRecentPhoto = profile?['recent_photo'] != null && profile!['recent_photo'].toString().isNotEmpty;
+        final hasAlternatePhone = profile?['alternate_phone'] != null && profile!['alternate_phone'].toString().isNotEmpty;
+
+        // Profile is complete ONLY if ALL required fields are filled
+        hasCompleteProfile = hasGender && hasDateOfBirth && hasPrimaryServiceCategory &&
+            hasCity && hasYearsOfExperience && hasIdProofType &&
+            hasRecentPhoto && hasAlternatePhone;
+      }
+
+      // Navigate based on profile completion status
+      if (!hasCompleteProfile) {
+        // Profile is incomplete (any field is missing) - go to complete profile page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CompleteProfilePage(),
+          ),
+        );
+      } else {
+        // User has complete profile (ALL fields filled) - check verification status
+        if (verificationStatus == 'pending' || verificationStatus == 'waiting') {
+          // Redirect to waiting for approval screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => WaitingForApprovalPage()),
+          );
+        } else {
+          // User is registered and verified - go to main navigation
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainNavigationScreen(initialIndex: 0),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Apple Sign-In failed: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
