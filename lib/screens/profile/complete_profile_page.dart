@@ -160,7 +160,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
           description: '',
           yearsOfExperience: 0, // Will be set in step 2/5
           primaryServiceCategory: '', // Will be set in step 2/5
+          primaryServiceCategoryId: '', // Will be set in step 2/5
           serviceCategories: '', // Will be set in step 2/5
+          serviceCategoryIds: '', // Will be set in step 2/5
           servicesOffered: '', // Will be set in step 2/5
           addressLine: '',
           city: provider.selectedCity ?? '',

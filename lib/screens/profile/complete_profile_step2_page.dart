@@ -74,6 +74,12 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
         .toList();
     return selectedSubServices.join(',');
   }
+  
+  String _getServiceCategoryIds(BusinessOwnerProvider provider) {
+    // Get the list of selected subcategory IDs
+    final selectedIds = provider.getSelectedSubCategoryIds();
+    return selectedIds.join(',');
+  }
 
   Future<void> _handleNext() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -119,7 +125,9 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
           description: '',
           yearsOfExperience: _getYearsOfExperience(provider.selectedExperience),
           primaryServiceCategory: provider.selectedServiceCategory ?? '',
+          primaryServiceCategoryId: provider.selectedServiceCategoryId ?? '',
           serviceCategories: _getServiceCategories(provider.selectedServiceCategory, provider.subServices),
+          serviceCategoryIds: _getServiceCategoryIds(provider),
           servicesOffered: _getServicesOffered(provider.subServices),
           addressLine: '',
           city: provider.selectedCity ?? '',

@@ -243,6 +243,12 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
         .toList();
     return selectedSubServices.join(',');
   }
+  
+  String _getServiceCategoryIds(BusinessOwnerProvider provider) {
+    // Get the list of selected subcategory IDs
+    final selectedIds = provider.getSelectedSubCategoryIds();
+    return selectedIds.join(',');
+  }
 
   String _extractServiceRateNumber(String? rate) {
     if (rate == null || rate.isEmpty) return '';
@@ -298,7 +304,9 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
           description: '',
           yearsOfExperience: _getYearsOfExperience(provider.selectedExperience),
           primaryServiceCategory: provider.selectedServiceCategory ?? '',
+          primaryServiceCategoryId: provider.selectedServiceCategoryId ?? '',
           serviceCategories: _getServiceCategories(provider.selectedServiceCategory, provider.subServices),
+          serviceCategoryIds: _getServiceCategoryIds(provider),
           servicesOffered: _getServicesOffered(provider.subServices),
           addressLine: '',
           city: provider.selectedCity ?? '',

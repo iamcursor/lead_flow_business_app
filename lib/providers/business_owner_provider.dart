@@ -72,6 +72,9 @@ class BusinessOwnerProvider with ChangeNotifier {
   String? _selectedServiceCategory;
   String? get selectedServiceCategory => _selectedServiceCategory;
   
+  String? _selectedServiceCategoryId; // Store ID separately
+  String? get selectedServiceCategoryId => _selectedServiceCategoryId;
+  
   List<ServiceCategoryModel> _serviceCategories = [];
   List<ServiceCategoryModel> get serviceCategories => List.unmodifiable(_serviceCategories);
   
@@ -86,6 +89,10 @@ class BusinessOwnerProvider with ChangeNotifier {
   
   Map<String, bool> _subServices = {};
   Map<String, bool> get subServices => Map.unmodifiable(_subServices);
+  
+  // Map to store subcategory name to ID mapping
+  Map<String, String> _subServiceIdMap = {};
+  Map<String, String> get subServiceIdMap => Map.unmodifiable(_subServiceIdMap);
   
   double _serviceRadius = 10.0;
   double get serviceRadius => _serviceRadius;
@@ -280,11 +287,13 @@ class BusinessOwnerProvider with ChangeNotifier {
   
   void setSelectedServiceCategory(String? value) {
     _selectedServiceCategory = value;
+    _selectedServiceCategoryId = null; // Reset ID
     _updateStep2Progress();
     
     // Clear previous sub-categories and sub-services when category changes
     _subCategories = [];
     _subServices = {};
+    _subServiceIdMap = {};
     _isLoadingSubCategories = false;
     
     // Notify immediately to clear UI
@@ -297,12 +306,14 @@ class BusinessOwnerProvider with ChangeNotifier {
         final selectedCategory = _serviceCategories.firstWhere(
           (cat) => cat.name == value,
         );
+        _selectedServiceCategoryId = selectedCategory.id; // Store the ID
         _fetchSubCategories(selectedCategory.id, value);
       } catch (e) {
         print("Category not found: $value");
         // Category not found, keep sub-categories empty
         _subCategories = [];
         _subServices = {};
+        _subServiceIdMap = {};
         _isLoadingSubCategories = false;
         notifyListeners();
       }
@@ -324,6 +335,25 @@ class BusinessOwnerProvider with ChangeNotifier {
     _subServices[service] = value;
     _updateStep2Progress();
     notifyListeners();
+  }
+  
+  // Helper method to get selected sub-category IDs
+  List<String> getSelectedSubCategoryIds() {
+    final selectedSubCategories = _subServices.entries
+        .where((entry) => entry.value) // Only selected ones
+        .map((entry) => _subServiceIdMap[entry.key]) // Map name to ID
+        .where((id) => id != null) // Filter out nulls
+        .cast<String>() // Cast to List<String>
+        .toList();
+    return selectedSubCategories;
+  }
+  
+  // Helper method to get selected sub-category names (for display)
+  List<String> getSelectedSubCategoryNames() {
+    return _subServices.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
   }
   
   void _updateStep2Progress() {
@@ -526,10 +556,13 @@ class BusinessOwnerProvider with ChangeNotifier {
             .where((subCat) => subCat.isActive && subCat.mainCategory == mainCategoryId)
             .toList();
         
-        // Initialize sub-services map with sub-categories
+        // Initialize sub-services map with sub-categories (name -> selected status)
+        // AND initialize ID map (name -> ID)
         _subServices = {};
+        _subServiceIdMap = {};
         for (var subCat in _subCategories) {
           _subServices[subCat.name] = false;
+          _subServiceIdMap[subCat.name] = subCat.id; // Store the ID mapping
         }
       }
       
@@ -542,6 +575,7 @@ class BusinessOwnerProvider with ChangeNotifier {
         _isLoadingSubCategories = false;
         _subCategories = [];
         _subServices = {};
+        _subServiceIdMap = {};
         notifyListeners();
       }
       print("Failed to fetch sub-categories: $e");
@@ -671,6 +705,7 @@ class BusinessOwnerProvider with ChangeNotifier {
         email: email,
         phone: phone,
         serviceCategory: serviceCategory,
+        serviceCategoryId: _selectedServiceCategoryId, // Pass the ID
         city: city,
         recentPhoto: recentPhoto,
       );

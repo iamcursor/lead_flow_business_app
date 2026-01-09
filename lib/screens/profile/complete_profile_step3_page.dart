@@ -576,7 +576,9 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
           description: '',
           yearsOfExperience: 0, // Will be set in step 2/5
           primaryServiceCategory: provider.selectedServiceCategory ?? '',
+          primaryServiceCategoryId: provider.selectedServiceCategoryId ?? '',
           serviceCategories: '', // Will be set in step 2/5
+          serviceCategoryIds: '', // Will be set in step 2/5
           servicesOffered: '', // Will be set in step 2/5
           addressLine: '',
           city: provider.selectedCity ?? '',

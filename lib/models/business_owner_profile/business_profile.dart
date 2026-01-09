@@ -7,7 +7,9 @@ class BusinessProfileModel {
   final String description;
   final int yearsOfExperience;
   final String primaryServiceCategory;
+  final String primaryServiceCategoryId; // Add ID field
   final String serviceCategories;
+  final String serviceCategoryIds; // Add ID field for subcategories
   final String servicesOffered;
   final String addressLine;
   final String city;
@@ -38,7 +40,9 @@ class BusinessProfileModel {
     required this.description,
     required this.yearsOfExperience,
     required this.primaryServiceCategory,
+    required this.primaryServiceCategoryId,
     required this.serviceCategories,
+    required this.serviceCategoryIds,
     required this.servicesOffered,
     required this.addressLine,
     required this.city,
@@ -71,7 +75,9 @@ class BusinessProfileModel {
       description: json["description"] ?? "",
       yearsOfExperience: json["years_of_experience"] ?? 0,
       primaryServiceCategory: json["primary_service_category"] ?? "",
+      primaryServiceCategoryId: json["primary_service_category_id"] ?? "",
       serviceCategories: json["service_categories"] ?? "",
+      serviceCategoryIds: json["service_category_ids"] ?? "",
       servicesOffered: json["services_offered"] ?? "",
       addressLine: json["address_line"] ?? "",
       city: json["city"] ?? "",
@@ -105,7 +111,9 @@ class BusinessProfileModel {
       "description": description,
       "years_of_experience": yearsOfExperience,
       "primary_service_category": primaryServiceCategory,
+      "primary_service_category_id": primaryServiceCategoryId,
       "service_categories": serviceCategories,
+      "service_category_ids": serviceCategoryIds,
       "services_offered": servicesOffered,
       "address_line": addressLine,
       "city": city,
