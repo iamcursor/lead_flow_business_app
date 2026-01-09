@@ -48,6 +48,42 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944659731976:android:f537d534fdc725ad4b63bd",
+        "android_client_info": {
+          "package_name": "com.getntouch.business"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "944659731976-mtjgm9r1vjd7c386k8falgi2h22saa0s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7KNsML-F3KTXtUYq1AJs3MugsEdBtWwQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "944659731976-mtjgm9r1vjd7c386k8falgi2h22saa0s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "944659731976-10hkv94a33iervplorsq6ptsg5psfne5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.leadFlowBusiness"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
