@@ -109,9 +109,20 @@ class AppColors {
   static const Color google = Color(0xFFDB4437);
   static const Color whatsapp = Color(0xFF25D366);
 
-  // Dark Theme Colors (for future use)
+  // Dark Theme Colors
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
-  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkSurfaceVariant = Color(0xFF2C2C2C);
+  static const Color darkSurfaceContainer = Color(0xFF252525);
+  static const Color darkTextPrimary = Color(0xFFFFFFFF); // #FFFFFF
   static const Color darkTextSecondary = Color(0xFFB0B0B0);
+  static const Color darkTextTertiary = Color(0xFF808080);
+  static const Color darkTextHint = Color(0xFF666666);
+  static const Color darkPrimary = Color(0xFF3F51B6); // #3F51B6
+  static const Color darkPrimaryLight = Color(0xFF5C6BC0);
+  static const Color darkBorder = Color(0xFF333333);
+  static const Color darkBorderLight = Color(0xFF2A2A2A);
+  static const Color darkDivider = Color(0xFF2A2A2A);
+  static const Color darkIconPrimary = Color(0xFFFFFFFF);
+  static const Color darkIconSecondary = Color(0xFFB0B0B0);
 }

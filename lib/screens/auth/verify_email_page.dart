@@ -183,14 +183,16 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     SizedBox(height: AppDimensions.verticalSpaceL),
 
                     // Title
-                    Text('Verify Email', style: AppTextStyles.appBarTitle),
+                    Text('Verify Email', style: AppTextStyles.appBarTitle.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    )),
                     SizedBox(height: AppDimensions.verticalSpaceM),
 
                     // Description
                     Text(
                       'Verify your email below to proceed',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14.h
                       ),
                     ),
@@ -198,7 +200,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     Text(
                       'Enter the 6 digits code sent to your email address ${_getMaskedEmail()} below',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14.h
                       ),
                     ),
@@ -222,34 +224,34 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                 maxLength: 1,
                                 style: AppTextStyles.bodyLarge.copyWith(
                                   fontSize: 18.w,
-
                                   fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                                 decoration: InputDecoration(
                                   counterText: '',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12.r),
                                     borderSide: BorderSide(
-                                      color: AppColors.border,
+                                      color: Theme.of(context).colorScheme.outline,
                                       width: 1,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12.r),
                                     borderSide: BorderSide(
-                                      color: AppColors.border,
+                                      color: Theme.of(context).colorScheme.outline,
                                       width: 1,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12.r),
                                     borderSide: BorderSide(
-                                      color: AppColors.primary,
-                                      width: 2,
+                                      color: Theme.of(context).colorScheme.outline,
+                                      width: 1,
                                     ),
                                   ),
                                   filled: true,
-                                  fillColor: AppColors.background,
+                                  fillColor: Theme.of(context).colorScheme.surfaceVariant,
                                 ),
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
@@ -268,7 +270,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       child: Text(
                         'code expires in ${_formatTimer(authProvider.remainingSeconds)}',
                         style: AppTextStyles.labelMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12.h
                         ),
                       ),
@@ -283,7 +285,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                           Text(
                             "Don't get code? ",
                             style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12.h
                             ),
                           ),
@@ -292,7 +294,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                             child: Text(
                               'Resend code',
                               style: AppTextStyles.labelMedium.copyWith(
-                                color: authProvider.canResend ? AppColors.primary : AppColors.textTertiary,
+                                color: authProvider.canResend 
+                                    ? Theme.of(context).colorScheme.primary 
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
                                   fontSize: 12.h
                               ),
@@ -332,7 +336,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

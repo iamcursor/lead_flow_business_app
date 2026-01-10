@@ -223,17 +223,17 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                   vertical: 5.h,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.successLight,
+                  color: Color(0xFFC1EDC6),
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: AppColors.success,
+                    color: const Color(0xFF3FB653),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   'Completed',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.success,
+                    color: const Color(0xFF3FB653),
                     fontWeight: FontWeight.w600,
                     fontSize: 11.sp,
                   ),

@@ -76,7 +76,6 @@ class _VerificationSuccessPageState extends State<VerificationSuccessPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,// Light blue/lavender background
       body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
@@ -86,7 +85,7 @@ class _VerificationSuccessPageState extends State<VerificationSuccessPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Success Icon
+                  // Success Icon - Blue circle with blue fill and white checkmark
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
@@ -94,28 +93,28 @@ class _VerificationSuccessPageState extends State<VerificationSuccessPage>
                       height: 70.w,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.background,
+                        color: Theme.of(context).colorScheme.primary, // Blue fill
                         border: Border.all(
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary, // Blue border
                           width: 4,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.onPrimary, // White checkmark
                         size: 60,
                       ),
                     ),
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceXL),
                   
-                  // Congratulations Text
+                  // Congratulations Text - Blue color
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Text(
                       'Congratulations!',
                       style: AppTextStyles.appBarTitle.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary, // Blue
                         fontWeight: FontWeight.bold,
                         fontSize: 26.w,
                       ),
@@ -123,13 +122,13 @@ class _VerificationSuccessPageState extends State<VerificationSuccessPage>
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceM),
                   
-                  // Success Message
+                  // Success Message - White text in dark mode
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Text(
                       'Your verification is successful',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onBackground, // White in dark mode
                         fontSize: 14.h
                       ),
                     ),

@@ -37,7 +37,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background, // Light purple/lavender background
             body: Stack(
             children: [
               // Main Content
@@ -51,26 +50,33 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
                       // Title
-                      Text('Create New Password', style: AppTextStyles.appBarTitle),
+                      Text('Create New Password', style: AppTextStyles.appBarTitle.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       
                       // Description
                       Text(
                         'Forgot your password? Let\'s create a new one and make your account secure again',
                         style: AppTextStyles.labelMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14.h
                         ),
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
                       // Password Field
-                      Text('Create a password', style: AppTextStyles.labelLarge),
+                      Text('Create a password', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: authProvider.obscurePassword,
                         enabled: !authProvider.isLoading,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Enter password',
                           suffixIcon: IconButton(
@@ -81,6 +87,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               authProvider.obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -98,12 +105,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
                       // Confirm Password Field
-                      Text('Confirm password', style: AppTextStyles.labelLarge),
+                      Text('Confirm password', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: authProvider.obscureConfirmPassword,
                         enabled: !authProvider.isLoading,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Re enter password',
                           suffixIcon: IconButton(
@@ -114,6 +126,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               authProvider.obscureConfirmPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -144,7 +157,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           Expanded(
                             child: Text(
                               'I accept the terms and privacy policy',
-                              style: AppTextStyles.labelLarge,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
                             ),
                           ),
                         ],
@@ -185,7 +200,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

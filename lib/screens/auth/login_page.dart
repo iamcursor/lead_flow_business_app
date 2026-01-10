@@ -73,14 +73,21 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: AppDimensions.verticalSpaceL),
-                  Text('Hi, Welcome!', style: AppTextStyles.appBarTitle),
+                  Text('Hi, Welcome!', style: AppTextStyles.appBarTitle.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
                   SizedBox(height: AppDimensions.verticalSpaceL),
                   // Email Field
-                  Text('Email address', style: AppTextStyles.labelLarge),
+                  Text('Email address', style: AppTextStyles.labelLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
                   SizedBox(height: AppDimensions.verticalSpaceS),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     decoration: const InputDecoration(hintText: 'Your email'),
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
@@ -93,11 +100,16 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: AppDimensions.verticalSpaceL),
 
                   // Password Field
-                  Text('Password', style: AppTextStyles.labelLarge),
+                  Text('Password', style: AppTextStyles.labelLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
                   SizedBox(height: AppDimensions.verticalSpaceS),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: authProvider.obscurePassword,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Password',
                       suffixIcon: IconButton(
@@ -108,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                           authProvider.obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -130,14 +143,16 @@ class _LoginPageState extends State<LoginPage> {
                           authProvider.setRememberMe(value ?? false);
                         },
                       ),
-                      Text('Remember me', style: AppTextStyles.labelLarge),
+                      Text('Remember me', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       const Spacer(),
                       GestureDetector(
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage(),)),
                         child: Text(
                           'Forgot password?',
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -166,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Or Login With',
                       style: AppTextStyles.bodyMedium.copyWith(
-
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
@@ -184,10 +199,10 @@ class _LoginPageState extends State<LoginPage> {
                         child: OutlinedButton(
                           onPressed: () => _handleGoogleSignIn(context),
                           style: OutlinedButton.styleFrom(
-                            backgroundColor: AppColors.background,
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(
-                              color: AppColors.primary,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                            foregroundColor: Theme.of(context).colorScheme.onSurface,
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                             shape: RoundedRectangleBorder(
@@ -210,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                               Text(
                                 'Continue with Google',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -225,10 +240,10 @@ class _LoginPageState extends State<LoginPage> {
                         child: OutlinedButton(
                           onPressed: () => _handleAppleSignIn(context),
                           style: OutlinedButton.styleFrom(
-                            backgroundColor: AppColors.background,
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(
-                              color: AppColors.primary,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                            foregroundColor: Theme.of(context).colorScheme.onSurface,
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                             shape: RoundedRectangleBorder(
@@ -246,14 +261,14 @@ class _LoginPageState extends State<LoginPage> {
                               // Apple Logo
                               Icon(
                                 Icons.apple,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 size: 24,
                               ),
                               SizedBox(width: AppDimensions.paddingM),
                               Text(
                                 'Continue with Apple',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -275,8 +290,8 @@ class _LoginPageState extends State<LoginPage> {
                             style: AppTextStyles.bodyLarge.copyWith(
                               fontSize: 18.w,
                               fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
-
                           ),
                           GestureDetector(
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage(),)),
@@ -284,7 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Sign up',
                               style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 18.w,
-                                color: AppColors.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -306,7 +321,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 24.w,
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.primaryLight,
+                      AppColors.primary,
                     ),
                     strokeWidth: 2,
                   ),
@@ -433,8 +448,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
-
 
   void _handleGoogleSignIn(BuildContext context) async {
     // Hide keyboard when API is hit

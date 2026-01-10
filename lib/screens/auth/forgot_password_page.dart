@@ -45,22 +45,29 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: AppDimensions.verticalSpaceL),
-                  Text('Forgot Password', style: AppTextStyles.appBarTitle),
+                  Text('Forgot Password', style: AppTextStyles.appBarTitle.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
                   SizedBox(height: AppDimensions.verticalSpaceM),
                   Text(
                     'Forgot your password? Let create a new one and make your account secure again.',
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14.h
                     ),
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceL),
                   // Email Field
-                  Text('Email address', style: AppTextStyles.labelLarge),
+                  Text('Email address', style: AppTextStyles.labelLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
                   SizedBox(height: AppDimensions.verticalSpaceS),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     decoration: const InputDecoration(hintText: 'Enter your email address'),
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
@@ -92,6 +99,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             style: AppTextStyles.bodyLarge.copyWith(
                               fontSize: 18.w,
                               fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
 
                           ),
@@ -101,7 +109,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               'Log in',
                               style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 18.w,
-                                color: AppColors.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -122,7 +130,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   height: 24.w,
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.primaryLight,
+                      AppColors.primary,
                     ),
                     strokeWidth: 2,
                   ),

@@ -42,7 +42,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SingleChildScrollView(
@@ -58,7 +57,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       Text(
                         'Change Your Password',
                         style: AppTextStyles.appBarTitle.copyWith(
-                          fontSize: 30
+                          fontSize: 30,
+                          color: Theme.of(context).colorScheme.onBackground,
                         ),
 
                       ),
@@ -71,7 +71,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       
@@ -80,15 +80,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       // Old Password Field
                       Text(
                         'Old password',
-                        style: AppTextStyles.labelLarge,
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _oldPasswordController,
                         obscureText: businessOwnerProvider.obscureOldPassword,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Enter your old password',
-                          hintStyle: AppTextStyles.inputHint,
                           suffixIcon: IconButton(
                             onPressed: () {
                               businessOwnerProvider.toggleObscureOldPassword();
@@ -97,11 +101,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                               businessOwnerProvider.obscureOldPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: AppColors.iconSecondary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
-                        style: AppTextStyles.inputText,
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
                             return 'Please enter your old password';
@@ -115,15 +118,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       // New Password Field
                       Text(
                         'New password',
-                        style: AppTextStyles.labelLarge,
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _newPasswordController,
                         obscureText: businessOwnerProvider.obscureNewPassword,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'enter new password',
-                          hintStyle: AppTextStyles.inputHint,
                           suffixIcon: IconButton(
                             onPressed: () {
                               businessOwnerProvider.toggleObscureNewPassword();
@@ -132,11 +139,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                               businessOwnerProvider.obscureNewPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: AppColors.iconSecondary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
-                        style: AppTextStyles.inputText,
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
                             return 'Please enter a new password';
@@ -153,15 +159,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       // Confirm Password Field
                       Text(
                         'Confirm password',
-                        style: AppTextStyles.labelLarge,
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: businessOwnerProvider.obscureConfirmPassword,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Re enter password',
-                          hintStyle: AppTextStyles.inputHint,
                           suffixIcon: IconButton(
                             onPressed: () {
                               businessOwnerProvider.toggleObscureConfirmPassword();
@@ -170,11 +180,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                               businessOwnerProvider.obscureConfirmPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: AppColors.iconSecondary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
-                        style: AppTextStyles.inputText,
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
                             return 'Please confirm your password';
@@ -226,7 +235,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

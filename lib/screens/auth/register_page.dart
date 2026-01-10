@@ -54,14 +54,21 @@ class _RegisterPageState extends State<RegisterPage> {
                     children: [
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
-                      Text('Create Account', style: AppTextStyles.appBarTitle),
+                      Text('Create Account', style: AppTextStyles.appBarTitle.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceL),
                       // Email Field
-                      Text('Email', style: AppTextStyles.labelLarge),
+                      Text('Email', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: const InputDecoration(hintText: 'Your email'),
                         enabled: !authProvider.isLoading,
                         validator: (value) {
@@ -75,12 +82,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
                       // Password Field
-                      Text('Create a password', style: AppTextStyles.labelLarge),
+                      Text('Create a password', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: authProvider.obscurePassword,
                         enabled: !authProvider.isLoading,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Enter password',
                           suffixIcon: IconButton(
@@ -91,6 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               authProvider.obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -108,12 +121,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(height: AppDimensions.verticalSpaceL),
 
                       // Confirm Password Field
-                      Text('Confirm password', style: AppTextStyles.labelLarge),
+                      Text('Confirm password', style: AppTextStyles.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      )),
                       SizedBox(height: AppDimensions.verticalSpaceS),
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: authProvider.obscureConfirmPassword,
                         enabled: !authProvider.isLoading,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Re-enter password',
                           suffixIcon: IconButton(
@@ -124,6 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               authProvider.obscureConfirmPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -151,7 +170,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               authProvider.setAcceptTerms(value ?? false);
                             },
                           ),
-                          Text('I accept the terms and privacy policy', style: AppTextStyles.labelLarge),
+                          Text('I accept the terms and privacy policy', style: AppTextStyles.labelLarge.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          )),
                         ],
                       ),
 
@@ -173,7 +194,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Text(
                           'Or with',
                           style: AppTextStyles.bodyMedium.copyWith(
-
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
                       ),
@@ -190,10 +211,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: OutlinedButton(
                               onPressed: () => _handleGoogleSignIn(context),
                               style: OutlinedButton.styleFrom(
-                                backgroundColor: AppColors.background,
-                                foregroundColor: AppColors.primary,
-                                side: const BorderSide(
-                                  color: AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
                                   width: 1,
                                 ),
                                 shape: RoundedRectangleBorder(
@@ -215,7 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   Text(
                                     'Continue with Google',
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.primary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -230,10 +251,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: OutlinedButton(
                               onPressed: authProvider.isLoading ? null : () {},
                               style: OutlinedButton.styleFrom(
-                                backgroundColor: AppColors.background,
-                                foregroundColor: AppColors.primary,
-                                side: const BorderSide(
-                                  color: AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
                                   width: 1,
                                 ),
                                 shape: RoundedRectangleBorder(
@@ -251,14 +272,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                   // Apple Logo
                                   Icon(
                                     Icons.apple,
-                                    color: Colors.black,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     size: 24,
                                   ),
                                   SizedBox(width: AppDimensions.paddingM),
                                   Text(
                                     'Continue with Apple',
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.primary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -280,6 +301,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               style: AppTextStyles.bodyLarge.copyWith(
                                 fontSize: 18.w,
                                 fontWeight: FontWeight.w400,
+                                color: Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                             GestureDetector(
@@ -290,7 +312,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 'Login',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 18.w,
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
@@ -316,7 +338,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),
