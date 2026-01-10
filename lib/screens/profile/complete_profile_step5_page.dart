@@ -51,6 +51,12 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
     
     return selectedSubServices.join(',');
   }
+  
+  String _getServiceCategoryIds(BusinessOwnerProvider provider) {
+    // Get the list of selected subcategory IDs
+    final selectedIds = provider.getSelectedSubCategoryIds();
+    return selectedIds.join(',');
+  }
 
   String _formatTimeOfDay(TimeOfDay? time) {
     if (time == null) return '';
@@ -114,7 +120,9 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
         description: '',
         yearsOfExperience: _getYearsOfExperience(provider.selectedExperience),
         primaryServiceCategory: provider.selectedServiceCategory ?? '',
+        primaryServiceCategoryId: provider.selectedServiceCategoryId ?? '',
         serviceCategories: _getServiceCategories(provider.selectedServiceCategory, provider.subServices),
+        serviceCategoryIds: _getServiceCategoryIds(provider),
         servicesOffered: _getServicesOffered(provider.subServices),
         addressLine: '',
         city: provider.selectedCity ?? '',

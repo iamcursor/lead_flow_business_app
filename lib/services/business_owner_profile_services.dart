@@ -82,22 +82,29 @@ class BusinessProfileService {
     try {
       final jsonData = model.toJson();
       
-      // Convert service_categories from string to array
-      // Only include selected sub-services (not the primary category)
-      final primaryCategory = jsonData['primary_service_category']?.toString() ?? '';
-      List<String> categories = [];
+      // Convert service_category_ids from string to array (SEND IDs, NOT NAMES)
+      List<String> categoryIds = [];
       
-      // Add selected sub-services from service_categories field
-      if (jsonData['service_categories'] != null && jsonData['service_categories'].toString().isNotEmpty) {
-        final selectedCategories = jsonData['service_categories'].toString()
+      // Add selected sub-service IDs from service_category_ids field
+      if (jsonData['service_category_ids'] != null && jsonData['service_category_ids'].toString().isNotEmpty) {
+        final selectedCategoryIds = jsonData['service_category_ids'].toString()
             .split(',')
             .map((e) => e.trim())
-            .where((e) => e.isNotEmpty && e != primaryCategory) // Explicitly exclude primary category
+            .where((e) => e.isNotEmpty)
             .toList();
-        categories.addAll(selectedCategories);
+        categoryIds.addAll(selectedCategoryIds);
       }
       
-      jsonData['service_categories'] = categories;
+      // Replace service_categories with IDs (backend expects this field to contain IDs)
+      jsonData['service_categories'] = categoryIds;
+      
+      // Replace primary_service_category with ID (backend expects ID)
+      if (jsonData['primary_service_category_id'] != null && jsonData['primary_service_category_id'].toString().isNotEmpty) {
+        jsonData['primary_service_category'] = jsonData['primary_service_category_id'];
+      }
+      // Remove the ID field as we've copied it to the main field
+      jsonData.remove('primary_service_category_id');
+      jsonData.remove('service_category_ids'); // Remove the helper field
       
       // Convert services_offered from string to array
       if (jsonData['services_offered'] != null && jsonData['services_offered'].toString().isNotEmpty) {
@@ -261,6 +268,7 @@ class BusinessProfileService {
     String? email,
     String? phone,
     String? serviceCategory,
+    String? serviceCategoryId, // Add ID parameter
     String? city,
     File? recentPhoto,
   }) async {
@@ -277,7 +285,11 @@ class BusinessProfileService {
       if (phone != null && phone.isNotEmpty) {
         formDataMap['phone'] = phone;
       }
-      if (serviceCategory != null && serviceCategory.isNotEmpty) {
+      // Send ID instead of name if available
+      if (serviceCategoryId != null && serviceCategoryId.isNotEmpty) {
+        formDataMap['primary_service_category'] = serviceCategoryId;
+      } else if (serviceCategory != null && serviceCategory.isNotEmpty) {
+        // Fallback to name if ID not available (for backward compatibility)
         formDataMap['primary_service_category'] = serviceCategory;
       }
       if (city != null && city.isNotEmpty) {
