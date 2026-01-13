@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
             : provider.selectedCity ?? 'Saket';
         
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Stack(
               children: [
@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Main Content
                     Expanded(
                       child: Container(
-                        color: AppColors.background,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               style: AppTextStyles.appBarTitle.copyWith(
                                 fontSize: 20.sp,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ),
@@ -126,7 +126,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       provider.errorMessage!,
                                       style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.error,
+                                        color: Theme.of(context).colorScheme.error,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -143,11 +143,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           else if (provider.response != null)
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.shadowLight,
+                                  color: Colors.black.withOpacity(0.1),
                                   blurRadius: AppDimensions.shadowBlurRadius,
                                   offset: Offset(0, AppDimensions.shadowOffset),
                                 ),
@@ -165,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         height: 80.w,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: AppColors.backgroundSecondary,
+                                          color: Theme.of(context).colorScheme.surfaceVariant,
                                         ),
                                         child: profileImageUrl != null && profileImageUrl.isNotEmpty
                                             ? ClipOval(
@@ -176,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     return Icon(
                                                       Icons.person,
                                                       size: 40.w,
-                                                      color: AppColors.textSecondary,
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                     );
                                                   },
                                                   loadingBuilder: (context, child, loadingProgress) {
@@ -202,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 : Icon(
                                                     Icons.person,
                                                     size: 40.w,
-                                                    color: AppColors.textSecondary,
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                   ),
                                       ),
                                       Positioned(
@@ -212,17 +212,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                           width: 24.w,
                                           height: 24.w,
                                           decoration: BoxDecoration(
-                                            color: AppColors.primary,
+                                            color: Theme.of(context).colorScheme.primary,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: AppColors.surface,
+                                              color: Theme.of(context).colorScheme.surface,
                                               width: 2,
                                             ),
                                           ),
                                           child: Icon(
                                             Icons.camera_alt,
                                             size: 12.w,
-                                            color: AppColors.textOnPrimary,
+                                            color: Theme.of(context).colorScheme.onPrimary,
                                           ),
                                         ),
                                       ),
@@ -242,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           style: TextStyle(
                                             fontSize: 16.sp,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimary,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                         ),
                                         
@@ -254,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           style: TextStyle(
                                             fontSize: 13.sp,
                                             fontWeight: FontWeight.w500,
-                                            color: AppColors.textPrimary,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                         
@@ -266,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             Icon(
                                               Icons.location_on,
                                               size: 15.w,
-                                              color: AppColors.textPrimary,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                             SizedBox(width: 4.w),
                                             Expanded(
@@ -275,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontSize: 13.sp,
                                                   fontWeight: FontWeight.w500,
-                                                  color: AppColors.textPrimary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                               ),
                                             ),
@@ -290,7 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             Icon(
                                               Icons.star,
                                               size: 18.w,
-                                              color: AppColors.ratingActive,
+                                              color: Theme.of(context).colorScheme.tertiary,
                                             ),
                                             SizedBox(width: 4.w),
                                             Text(
@@ -298,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 fontWeight: FontWeight.w500,
-                                                color: AppColors.textPrimary,
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                               ),
                                             ),
                                           ],
@@ -316,11 +316,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           // Account Management Options Card
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.shadowLight,
+                                  color: Colors.black.withOpacity(0.1),
                                   blurRadius: AppDimensions.shadowBlurRadius,
                                   offset: Offset(0, AppDimensions.shadowOffset),
                                 ),
@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Divider(
                                   height: 1,
                                   thickness: 1,
-                                  color: AppColors.borderLight,
+                                  color: Theme.of(context).colorScheme.outline,
                                 ),
                                 
                                 // Change Password
@@ -357,7 +357,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Divider(
                                   height: 1,
                                   thickness: 1,
-                                  color: AppColors.borderLight,
+                                  color: Theme.of(context).colorScheme.outline,
                                 ),
                                 
                                 // Notifications Preferences
@@ -373,7 +373,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Divider(
                                   height: 1,
                                   thickness: 1,
-                                  color: AppColors.borderLight,
+                                  color: Theme.of(context).colorScheme.outline,
                                 ),
                                 
                                 // Delete Account
@@ -394,12 +394,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           // Logout Button Card
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-                              border: Border.all(
-                                color: AppColors.error,
-                                width: 1,
-                              ),
                             ),
                             child: InkWell(
                               onTap: () async {
@@ -421,7 +417,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Icon(
                                       Icons.logout,
                                       size: 20.w,
-                                      color: AppColors.error,
+                                      color: Theme.of(context).colorScheme.onErrorContainer,
                                     ),
                                     SizedBox(width: AppDimensions.paddingS),
                                     Text(
@@ -429,7 +425,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.error,
+                                        color: Theme.of(context).colorScheme.onErrorContainer,
                                       ),
                                     ),
                                   ],
@@ -457,7 +453,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 24.w,
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.primaryLight,
+                            Theme.of(context).colorScheme.primary,
                           ),
                           strokeWidth: 2,
                         ),
@@ -487,13 +483,13 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               padding: EdgeInsets.all(AppDimensions.paddingS),
               decoration: BoxDecoration(
-                color: AppColors.backgroundSecondary,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
               ),
               child: Icon(
                 icon,
                 size: 20.w,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             
@@ -508,7 +504,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -517,7 +513,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -527,7 +523,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Icon(
               Icons.arrow_forward_ios,
               size: 16.w,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),

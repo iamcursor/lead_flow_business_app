@@ -291,11 +291,11 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
-                  verified ? 'Verification Successful' : 'Verification Failed',
+                  verified ?                   'Verification Successful' : 'Verification Failed',
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -311,7 +311,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 if (details != null) ...[
@@ -321,7 +321,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceS),
@@ -360,7 +360,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -383,7 +383,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -394,7 +394,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -414,7 +414,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -649,7 +649,6 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SafeArea(
@@ -658,7 +657,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -678,7 +677,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -695,7 +694,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   'Help customer know you better and get more bookings.',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontSize: 14.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w400,
                                   ),
                                   textAlign: TextAlign.center,
@@ -712,7 +711,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   'Step 3 of 5',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -721,7 +720,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   '${(provider.step3Progress * 100).toInt()}%',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -735,9 +734,9 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: provider.step3Progress,
-                                backgroundColor: AppColors.borderLight,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.outline,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
                                 ),
                                 minHeight: 6.h,
                               ),
@@ -748,10 +747,10 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                         // Verification Documents Container
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -765,7 +764,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -776,7 +775,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   style: TextStyle(
                                     fontSize: 15.sp,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -797,15 +796,15 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                           onPressed: () => _handleIdTypeSelection(idType),
                                           style: OutlinedButton.styleFrom(
                                             backgroundColor: isSelected 
-                                                ? AppColors.primary 
-                                                : AppColors.surfaceVariant,
+                                                ? Theme.of(context).colorScheme.primary 
+                                                : Theme.of(context).colorScheme.surfaceVariant,
                                             foregroundColor: isSelected 
-                                                ? AppColors.textOnPrimary 
-                                                : AppColors.textPrimary,
+                                                ? Theme.of(context).colorScheme.onPrimary 
+                                                : Theme.of(context).colorScheme.onSurface,
                                             side: BorderSide(
                                               color: isSelected 
-                                                  ? AppColors.primary 
-                                                  : AppColors.border,
+                                                  ? Theme.of(context).colorScheme.primary 
+                                                  : Theme.of(context).colorScheme.outline,
                                             ),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(
@@ -841,14 +840,14 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                       horizontal: AppDimensions.paddingM,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.surface,
+                                      color: Theme.of(context).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(
                                         AppDimensions.inputRadius,
                                       ),
                                       border: Border.all(
                                         color: provider.selectedIdDocument != null 
-                                            ? AppColors.primary 
-                                            : AppColors.border,
+                                            ? Theme.of(context).colorScheme.primary 
+                                            : Theme.of(context).colorScheme.outline,
                                         width: 1.5,
                                         style: BorderStyle.solid,
                                       ),
@@ -858,7 +857,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                             children: [
                                               Icon(
                                                 Icons.check_circle,
-                                                color: AppColors.primary,
+                                                color: Theme.of(context).colorScheme.primary,
                                                 size: 24.w,
                                               ),
                                               SizedBox(width: AppDimensions.paddingM),
@@ -868,7 +867,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                   style: TextStyle(
                                                     fontSize: 14.sp,
                                                     fontWeight: FontWeight.w500,
-                                                    color: AppColors.textPrimary,
+                                                    color: Theme.of(context).colorScheme.onSurface,
                                                   ),
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
@@ -877,7 +876,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 icon: Icon(
                                                   Icons.close,
                                                   size: 20.w,
-                                                  color: AppColors.textSecondary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                                 onPressed: () {
                                                   provider.setSelectedIdDocument(null);
@@ -890,7 +889,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                               Icon(
                                                 Icons.description_outlined,
                                                 size: 48.w,
-                                                color: AppColors.iconSecondary,
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                               ),
                                               SizedBox(height: AppDimensions.verticalSpaceM),
                                               Text(
@@ -898,7 +897,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 style: TextStyle(
                                                   fontSize: 14.sp,
                                                   fontWeight: FontWeight.w400,
-                                                  color: AppColors.textPrimary,
+                                                  color: Theme.of(context).colorScheme.onSurface,
                                                 ),
                                               ),
                                               SizedBox(height: AppDimensions.verticalSpaceS),
@@ -907,7 +906,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
                                                   fontWeight: FontWeight.w400,
-                                                  color: AppColors.textSecondary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                               ),
                                             ],
@@ -924,10 +923,10 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                         // Upload Recent Photo Container
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -941,7 +940,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -957,14 +956,14 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                       horizontal: AppDimensions.paddingM,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.surface,
+                                      color: Theme.of(context).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(
                                         AppDimensions.inputRadius,
                                       ),
                                       border: Border.all(
                                         color: provider.selectedPhoto != null 
-                                            ? AppColors.primary 
-                                            : AppColors.border,
+                                            ? Theme.of(context).colorScheme.primary 
+                                            : Theme.of(context).colorScheme.outline,
                                         width: 1.5,
                                         style: BorderStyle.solid,
                                       ),
@@ -991,7 +990,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                       style: TextStyle(
                                                         fontSize: 14.sp,
                                                         fontWeight: FontWeight.w500,
-                                                        color: AppColors.textPrimary,
+                                                        color: Theme.of(context).colorScheme.onSurface,
                                                       ),
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
@@ -1000,7 +999,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                       children: [
                                                         Icon(
                                                           Icons.check_circle,
-                                                          color: AppColors.primary,
+                                                          color: Theme.of(context).colorScheme.primary,
                                                           size: 16.w,
                                                         ),
                                                         SizedBox(width: 4.w),
@@ -1008,7 +1007,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                           'Photo selected',
                                                           style: TextStyle(
                                                             fontSize: 12.sp,
-                                                            color: AppColors.primary,
+                                                            color: Theme.of(context).colorScheme.primary,
                                                           ),
                                                         ),
                                                       ],
@@ -1020,7 +1019,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 icon: Icon(
                                                   Icons.close,
                                                   size: 20.w,
-                                                  color: AppColors.textSecondary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                                 onPressed: () {
                                                   provider.setSelectedPhoto(null);
@@ -1033,7 +1032,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                               Icon(
                                                 Icons.camera_alt_outlined,
                                                 size: 48.w,
-                                                color: AppColors.iconSecondary,
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                               ),
                                               SizedBox(height: AppDimensions.verticalSpaceM),
                                               Text(
@@ -1041,7 +1040,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 style: TextStyle(
                                                   fontSize: 14.sp,
                                                   fontWeight: FontWeight.w400,
-                                                  color: AppColors.textPrimary,
+                                                  color: Theme.of(context).colorScheme.onSurface,
                                                 ),
                                               ),
                                               SizedBox(height: AppDimensions.verticalSpaceS),
@@ -1050,7 +1049,7 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
                                                   fontWeight: FontWeight.w400,
-                                                  color: AppColors.textSecondary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                               ),
                                             ],
@@ -1082,15 +1081,12 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
                   child: ElevatedButton(
                     onPressed: provider.isLoading ? null : _handleNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textOnPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.buttonRadius,
                         ),
                       ),
-                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                     ),
                     child: Text(
                       'Next',
@@ -1107,14 +1103,14 @@ class _CompleteProfileStep3PageState extends State<CompleteProfileStep3Page> {
               // Centered Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

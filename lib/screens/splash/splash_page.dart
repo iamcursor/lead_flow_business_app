@@ -58,7 +58,7 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
@@ -71,12 +71,23 @@ class _SplashPageState extends State<SplashPage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // App Logo
-                    Image.asset(
-                      "assets/images/logo.png",
-                      width: 250.w,
-                      height: 250.w,
-
-                    ),
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ColorFiltered(
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
+                            ),
+                            child: Image.asset(
+                              "assets/images/logo.png",
+                              width: 250.w,
+                              height: 250.w,
+                            ),
+                          )
+                        : Image.asset(
+                            "assets/images/logo.png",
+                            width: 250.w,
+                            height: 250.w,
+                          ),
 
                     SizedBox(height: AppDimensions.verticalSpaceXXL),
 

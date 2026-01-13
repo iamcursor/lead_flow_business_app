@@ -26,11 +26,11 @@ class StatCardWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppDimensions.cardPadding),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -56,14 +56,16 @@ class StatCardWidget extends StatelessWidget {
           SizedBox(height: AppDimensions.verticalSpaceM),
           Text(
             value,
-            style: AppTextStyles.displaySmall,
+            style: AppTextStyles.displaySmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: AppDimensions.verticalSpaceXS),
           Text(
             label,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textPrimary
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),

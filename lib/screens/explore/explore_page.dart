@@ -66,7 +66,6 @@ class ExplorePage extends StatelessWidget {
         : 10.0;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
           body: SafeArea(
             child: Stack(
               children: [
@@ -213,7 +212,7 @@ class ExplorePage extends StatelessWidget {
                           height: 24.w,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.primaryLight,
+                              AppColors.primary,
                             ),
                             strokeWidth: 2,
                           ),

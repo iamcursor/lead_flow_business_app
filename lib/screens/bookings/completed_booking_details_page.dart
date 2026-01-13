@@ -24,14 +24,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
             // Main Content
             Expanded(
               child: Container(
-                color: AppColors.background,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
                     horizontal: AppDimensions.screenPaddingHorizontal,
@@ -48,7 +47,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                           IconButton(
                             icon: Icon(
                               Icons.arrow_back,
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               size: AppDimensions.iconM,
                             ),
                             onPressed: () => Navigator.pop(context),
@@ -63,7 +62,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -75,22 +74,22 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       SizedBox(height: AppDimensions.verticalSpaceL),
             
             // Customer Info Card
-            _buildCustomerInfoCard(),
+            _buildCustomerInfoCard(context),
             
             SizedBox(height: AppDimensions.verticalSpaceM),
             
             // Service Details Card
-            _buildServiceDetailsCard(),
+            _buildServiceDetailsCard(context),
             
             SizedBox(height: AppDimensions.verticalSpaceM),
             
             // Charges Overview Card
-            _buildChargesCard(),
+            _buildChargesCard(context),
             
             SizedBox(height: AppDimensions.verticalSpaceM),
             
             // Customer Feedback Card
-            _buildFeedbackCard(),
+            _buildFeedbackCard(context),
             
             SizedBox(height: AppDimensions.verticalSpaceM),
             
@@ -106,8 +105,6 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(
                         vertical: AppDimensions.paddingM,
                       ),
@@ -118,9 +115,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                     ),
                     child: Text(
                       'Return to Dashboard',
-                      style: AppTextStyles.buttonMedium.copyWith(
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.buttonMedium,
                     ),
                   ),
                 ),
@@ -133,8 +128,12 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       // TODO: Handle download invoice
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: BorderSide(color: AppColors.primary, width: 1),
+                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                        width: 1,
+                      ),
                       padding: EdgeInsets.symmetric(
                         vertical: AppDimensions.paddingM,
                       ),
@@ -148,13 +147,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                         Icon(
                           Icons.download,
                           size: AppDimensions.iconM,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         SizedBox(width: AppDimensions.paddingS),
                         Text(
                           'Download Invoice',
                           style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -175,14 +174,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomerInfoCard() {
+  Widget _buildCustomerInfoCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -204,13 +203,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       'Customer Info',
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: AppDimensions.verticalSpaceXS),
                     Text(
                       '#ID: ${booking.bookingId}',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12.sp,
                       ),
                     ),
@@ -223,17 +223,17 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                   vertical: 5.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xFFC1EDC6),
+                  color: const Color(0xFFC1EDC6), // Light green background from design - same as bookings page
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: const Color(0xFF3FB653),
+                    color: const Color(0xFF3FB653), // Green border color from design - same as bookings page
                     width: 1,
                   ),
                 ),
                 child: Text(
                   'Completed',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: const Color(0xFF3FB653),
+                    color: const Color(0xFF3FB653), // Green text color from design - same as bookings page
                     fontWeight: FontWeight.w600,
                     fontSize: 11.sp,
                   ),
@@ -246,6 +246,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             booking.customerName,
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -254,14 +255,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
               Icon(
                 Icons.location_on,
                 size: AppDimensions.iconS,
-                color: AppColors.primaryLight,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppDimensions.paddingXS),
               Expanded(
                 child: Text(
                   booking.location,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -272,14 +273,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceDetailsCard() {
+  Widget _buildServiceDetailsCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -293,6 +294,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             'Service Details',
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -300,6 +302,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             booking.serviceName,
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -308,13 +311,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
               Icon(
                 Icons.access_time,
                 size: AppDimensions.iconS,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppDimensions.paddingS),
               Text(
                 '${booking.date} at ${booking.time}',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -324,7 +327,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             Text(
               'Estimated Duration: ${booking.estimatedDuration}',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -332,6 +335,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             'Service Notes',
             style: AppTextStyles.titleMedium.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -352,7 +356,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       child: Text(
                         note,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -377,7 +381,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                       child: Text(
                         note,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -389,7 +393,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             Text(
               'No service notes available',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
         ],
@@ -397,14 +401,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChargesCard() {
+  Widget _buildChargesCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -418,6 +422,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             'Charges Overview',
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -431,13 +436,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                     Text(
                       charge['label']?.toString() ?? '',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       '\$${charge['amount']?.toString() ?? '0'}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -454,13 +459,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                     Text(
                       charge['label']?.toString() ?? '',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       '\$${charge['amount']?.toString() ?? '0'}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -471,13 +476,13 @@ class CompletedBookingDetailsPage extends StatelessWidget {
             Text(
               'No charges available',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           Divider(
             height: AppDimensions.verticalSpaceL,
             thickness: 1,
-            color: AppColors.border,
+            color: Theme.of(context).colorScheme.outline,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -486,12 +491,14 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                 'Total Charges',
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(
                 '\$${_calculateTotalCharges().toStringAsFixed(0)}',
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -517,7 +524,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
     return booking.price;
   }
 
-  Widget _buildFeedbackCard() {
+  Widget _buildFeedbackCard(BuildContext buildContext) {
     return Consumer<BusinessOwnerProvider>(
       builder: (context, provider, child) {
         // Extract business profile from provider response
@@ -570,11 +577,11 @@ class CompletedBookingDetailsPage extends StatelessWidget {
         
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(buildContext).colorScheme.surface,
             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
             boxShadow: [
               BoxShadow(
-                color: AppColors.shadowLight,
+                color: Colors.black.withOpacity(0.1),
                 blurRadius: AppDimensions.shadowBlurRadius,
                 offset: Offset(0, AppDimensions.shadowOffset),
               ),
@@ -588,6 +595,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                 'Customer Feedback',
                 style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: Theme.of(buildContext).colorScheme.onSurface,
                 ),
               ),
               SizedBox(height: AppDimensions.verticalSpaceS),
@@ -597,7 +605,7 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                   final ratingValue = rating ?? 0.0;
                   return Icon(
                     index < ratingValue.round() ? Icons.star : Icons.star_border,
-                    color: AppColors.ratingActive,
+                    color: Theme.of(buildContext).colorScheme.tertiary,
                     size: AppDimensions.ratingStarSize,
                   );
                 }),
@@ -608,16 +616,16 @@ class CompletedBookingDetailsPage extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.all(AppDimensions.paddingM),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: Theme.of(buildContext).colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                   border: Border.all(
-                    color: AppColors.borderDark
+                    color: Theme.of(buildContext).colorScheme.outline,
                   )
                 ),
                 child: Text(
                   booking.customerFeedback ?? 'No feedback provided',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(buildContext).colorScheme.onSurface,
                   ),
                 ),
               ),

@@ -122,7 +122,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     return Consumer<BookingProvider>(
       builder: (context, bookingProvider, child) {
         return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -131,7 +130,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -148,7 +147,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                               IconButton(
                                 icon: Icon(
                                   Icons.arrow_back,
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   size: AppDimensions.iconM,
                                 ),
                                 onPressed: () => Navigator.pop(context),
@@ -163,7 +162,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                                     style: AppTextStyles.appBarTitle.copyWith(
                                       fontSize: 20.sp,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onBackground,
                                     ),
                                   ),
                                 ),
@@ -202,8 +201,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: AppColors.textOnPrimary,
                                 ),
                                 onPressed: bookingProvider.isUpdatingStatus ? null : _handleStartBooking,
                                 child: Text('Start Booking', style: AppTextStyles.buttonLarge),
@@ -214,8 +211,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: AppColors.textOnPrimary,
                                 ),
                                 onPressed: bookingProvider.isUpdatingStatus ? null : _handleCompleteBooking,
                                 child: Text('Complete Booking', style: AppTextStyles.buttonLarge),
@@ -231,14 +226,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             // Loader Overlay
             if (bookingProvider.isUpdatingStatus)
               Container(
-                color: AppColors.overlayLight,
+                color: Colors.black.withOpacity(0.5),
                 child: Center(
                   child: SizedBox(
                     width: 24.w,
                     height: 24.w,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primaryLight,
+                        AppColors.primary,
                       ),
                       strokeWidth: 2,
                     ),
@@ -256,11 +251,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   Widget _buildCustomerInfoCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -274,6 +269,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             'Customer Info',
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceM),
@@ -284,7 +280,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               // Profile Picture
               CircleAvatar(
                 radius: 28.r,
-                backgroundColor: AppColors.surfaceVariant,
+                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                 backgroundImage: widget.booking.customerProfilePicture != null
                     ? NetworkImage(widget.booking.customerProfilePicture!)
                     : null,
@@ -292,7 +288,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     ? Icon(
                         Icons.person,
                         size: AppDimensions.iconL,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )
                     : null,
               ),
@@ -307,6 +303,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       widget.booking.customerName,
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: AppDimensions.verticalSpaceXS),
@@ -315,14 +312,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                         Icon(
                           Icons.location_on,
                           size: AppDimensions.iconS,
-                          color: AppColors.primaryLight,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         SizedBox(width: AppDimensions.paddingXS),
                         Expanded(
                           child: Text(
                             widget.booking.location,
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -348,7 +345,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       Text(
                         widget.booking.distance!,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w400,
                         ),
@@ -362,9 +359,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                         'View on Map',
                         style: AppTextStyles.bodySmall.copyWith(
                           fontSize: 12.sp,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           decoration: TextDecoration.underline,
-                          decorationColor: AppColors.primary,
+                          decorationColor: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -404,12 +401,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         width: 48.w,
         height: 48.w,
         decoration: BoxDecoration(
-          color: Color(0xffF1F4FF),
+          color: Theme.of(context).colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(AppDimensions.radiusM),
         ),
         child: Icon(
           icon,
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           size: AppDimensions.iconM,
         ),
       ),
@@ -419,11 +416,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   Widget _buildServiceDetailsCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -437,6 +434,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             'Service Details',
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -445,6 +443,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             widget.booking.serviceName,
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -454,13 +453,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               Icon(
                 Icons.access_time,
                 size: AppDimensions.iconS,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppDimensions.paddingS),
               Text(
                 '${widget.booking.date} at ${widget.booking.time}',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textPrimary
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -471,7 +470,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             Text(
               'Estimated Duration: ${widget.booking.estimatedDuration}',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             SizedBox(height: AppDimensions.verticalSpaceS),
@@ -481,6 +480,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             'Service Notes',
             style: AppTextStyles.titleMedium.copyWith(
               fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -488,17 +488,17 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             width: double.infinity,
             padding: EdgeInsets.all(AppDimensions.paddingM),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(AppDimensions.radiusS),
               border: Border.all(
                 width: 1,
-                color: AppColors.borderDark
+                color: Theme.of(context).colorScheme.outline,
               )
             ),
             child: Text(
               widget.booking.serviceNotes ?? 'No notes provided',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -510,11 +510,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   Widget _buildPricingCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -528,6 +528,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             'Pricing & Payments',
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: AppDimensions.verticalSpaceS),
@@ -542,7 +543,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   Text(
                     'Offered Rate:',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w700
 
                     ),
@@ -552,7 +553,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     'Incl. visit charges',
                     style: AppTextStyles.bodySmall.copyWith(
                       fontSize: 10.sp,
-                      color: AppColors.textPrimary
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -561,7 +562,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 '\$${widget.booking.price.toStringAsFixed(0)}',
                 style: AppTextStyles.priceText.copyWith(
                   fontSize: 16.sp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w700
                 ),
               ),
@@ -572,7 +573,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           Text(
             'Additional charges: additional charges can be added after job completion.',
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textPrimary
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -606,18 +607,21 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
           title: Text(
             'Add Service Note',
-            style: AppTextStyles.titleLarge,
+            style: AppTextStyles.titleLarge.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           content: TextField(
             controller: noteController,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter service note',
-              hintStyle: AppTextStyles.inputHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
               ),
             ),
-            style: AppTextStyles.inputText,
             autofocus: true,
           ),
           actions: [
@@ -626,7 +630,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               child: Text(
                 'Cancel',
                 style: AppTextStyles.buttonMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -640,7 +644,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               child: Text(
                 'Add',
                 style: AppTextStyles.buttonMedium.copyWith(
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -670,11 +674,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       builder: (context, bookingProvider, child) {
         return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -697,13 +701,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       'Add details',
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: AppDimensions.verticalSpaceM),
                     Text(
                       'Service Notes',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -716,13 +721,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   width: 35.w,
                   height: 35.w,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
                     shape: BoxShape.rectangle,
                   ),
                   child: Icon(
                     Icons.add,
                     size: AppDimensions.iconM,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -740,14 +745,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       vertical: AppDimensions.paddingS,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      border: Border.all(color: AppColors.border),
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
                       borderRadius: BorderRadius.circular(AppDimensions.radiusL),
                     ),
                     child: Text(
                       note,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   )),
@@ -765,11 +770,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       builder: (context, bookingProvider, child) {
         return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -788,6 +793,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   'Extra Charges',
                   style: AppTextStyles.titleLarge.copyWith(
                     fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -798,13 +804,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   width: 35.w,
                   height: 35.w,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
                     shape: BoxShape.rectangle,
                   ),
                   child: Icon(
                     Icons.add,
                     size: AppDimensions.iconM,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -816,7 +822,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             Text(
               'No extra charges added',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             )
           else
@@ -831,14 +837,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                         child: Text(
                           charge.name,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
                       Text(
                         '\$${charge.price.toStringAsFixed(0)}',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -924,7 +930,9 @@ class _AddExtraChargeDialogState extends State<_AddExtraChargeDialog> {
       ),
       title: Text(
         'Add Extra Charge',
-        style: AppTextStyles.titleLarge,
+        style: AppTextStyles.titleLarge.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -933,29 +941,31 @@ class _AddExtraChargeDialogState extends State<_AddExtraChargeDialog> {
           children: [
             TextField(
               controller: _nameController,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               decoration: InputDecoration(
                 hintText: 'e.g., Extra Pipe',
-                hintStyle: AppTextStyles.inputHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
                 ),
               ),
-              style: AppTextStyles.inputText,
               autofocus: true,
             ),
             SizedBox(height: AppDimensions.verticalSpaceM),
             TextField(
               controller: _priceController,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               decoration: InputDecoration(
                 hintText: 'e.g., 200',
-                hintStyle: AppTextStyles.inputHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
                 ),
                 prefixText: '\$ ',
               ),
               keyboardType: TextInputType.number,
-              style: AppTextStyles.inputText,
             ),
             if (_errorMessage != null) ...[
               SizedBox(height: AppDimensions.verticalSpaceS),
@@ -973,7 +983,7 @@ class _AddExtraChargeDialogState extends State<_AddExtraChargeDialog> {
           child: Text(
             'Cancel',
             style: AppTextStyles.buttonMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -982,7 +992,7 @@ class _AddExtraChargeDialogState extends State<_AddExtraChargeDialog> {
           child: Text(
             'Add',
             style: AppTextStyles.buttonMedium.copyWith(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),

@@ -23,7 +23,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Stack(
               children: [
@@ -42,7 +42,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                           IconButton(
                             icon: Icon(
                               Icons.arrow_back,
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               size: AppDimensions.iconM,
                             ),
                             onPressed: () => Navigator.pop(context),
@@ -57,7 +57,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -71,11 +71,11 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                       // Warning Message Card
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.shadowLight,
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: AppDimensions.shadowBlurRadius,
                               offset: Offset(0, AppDimensions.shadowOffset),
                             ),
@@ -85,7 +85,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                         child: Text(
                           "Deleting your account is permanent. All your data, settings, and activity will be removed. This action cannot be undone.",
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400
                           ),
@@ -122,16 +122,16 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Failed to delete account. Please try again.'),
-                                    backgroundColor: AppColors.error,
+                                    backgroundColor: Theme.of(context).colorScheme.error,
                                   ),
                                 );
                               }
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            disabledBackgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.6),
                             padding: EdgeInsets.symmetric(
                               vertical: AppDimensions.paddingM,
                             ),
@@ -142,9 +142,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                           ),
                           child: Text(
                             'Confirm Deletion',
-                            style: AppTextStyles.buttonMedium.copyWith(
-                              color: Colors.white,
-                            ),
+                            style: AppTextStyles.buttonMedium,
                           ),
                         ),
                       ),
@@ -157,14 +155,14 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                 // Loading Overlay
                 if (authProvider.isLoading)
                   Container(
-                    color: AppColors.overlayLight,
+                    color: Colors.black.withOpacity(0.3),
                     child: Center(
                       child: SizedBox(
                         width: 24.w,
                         height: 24.w,
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.primaryLight,
+                            Theme.of(context).colorScheme.primary,
                           ),
                           strokeWidth: 2,
                         ),

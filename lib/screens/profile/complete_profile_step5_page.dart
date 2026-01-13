@@ -244,7 +244,6 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SafeArea(
@@ -253,7 +252,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -271,7 +270,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               style: AppTextStyles.appBarTitle.copyWith(
                                 fontSize: 20.sp,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ),
@@ -288,7 +287,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                 'Help customer know you better and get more bookings.',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 14.sp,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 textAlign: TextAlign.center,
@@ -305,7 +304,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                 'Step 5 of 5',
                                 style: AppTextStyles.labelMedium.copyWith(
                                   fontSize: 13.sp,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                   fontWeight: FontWeight.w500
                                 ),
                               ),
@@ -314,7 +313,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                 '${(provider.step5Progress * 100).toInt()}%',
                                 style: AppTextStyles.labelMedium.copyWith(
                                   fontSize: 13.sp,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                   fontWeight: FontWeight.w500
                                 ),
                               ),
@@ -328,9 +327,9 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                             borderRadius: BorderRadius.circular(4.r),
                             child: LinearProgressIndicator(
                               value: provider.step5Progress,
-                              backgroundColor: AppColors.borderLight,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.primary,
+                              backgroundColor: Theme.of(context).colorScheme.outline,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).colorScheme.primary,
                               ),
                               minHeight: 6.h,
                             ),
@@ -341,10 +340,10 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                       // Profile Completion Status Card
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                           border: Border.all(
-                            color: AppColors.borderLight,
+                            color: Theme.of(context).colorScheme.outline,
                             width: 1,
                           ),
                         ),
@@ -358,7 +357,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                 style: TextStyle(
                                   fontSize: 17.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               
@@ -409,7 +408,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   Text(
@@ -432,10 +431,10 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                       // Confirmation Checkbox Card
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                           border: Border.all(
-                            color: AppColors.borderLight,
+                            color: Theme.of(context).colorScheme.outline,
                             width: 1,
                           ),
                         ),
@@ -452,7 +451,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                     onChanged: (bool? value) {
                                       provider.setConfirmInformation(value ?? false);
                                     },
-                                    activeColor: AppColors.primary,
+                                    activeColor: Theme.of(context).colorScheme.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(4.r),
                                     ),
@@ -465,7 +464,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                     ),
@@ -482,7 +481,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                                   style: TextStyle(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w400,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     height: 1.4,
                                   ),
                                 ),
@@ -556,11 +555,11 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                             Navigator.pop(context);
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: AppColors.primary,
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
                               width: 2,
                             ),
-                            foregroundColor: AppColors.primary,
+                            foregroundColor: Theme.of(context).colorScheme.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppDimensions.buttonRadius,
@@ -570,7 +569,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                           child: Text(
                             'Previous',
                             style: AppTextStyles.buttonLarge.copyWith(
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.w600,
                               fontSize: 12.h,
                             ),
@@ -590,10 +589,6 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               ? _handleSubmit 
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: AppColors.textOnPrimary,
-                            disabledBackgroundColor: AppColors.borderLight,
-                            disabledForegroundColor: AppColors.textHint,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -604,7 +599,6 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                           child: Text(
                             'Submit for Approval',
                             style: AppTextStyles.buttonLarge.copyWith(
-                              color: AppColors.textOnPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 12.h,
                             ),
@@ -623,14 +617,14 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
               // Centered Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),
@@ -671,7 +665,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),

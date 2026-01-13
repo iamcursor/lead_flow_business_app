@@ -233,7 +233,6 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SafeArea(
@@ -242,7 +241,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -262,7 +261,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -279,7 +278,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                   'Help customer know you better and get more bookings.',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontSize: 14.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w400,
                                   ),
                                   textAlign: TextAlign.center,
@@ -296,7 +295,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                   'Step 1 of 5',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -305,7 +304,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                   '${(provider.step1Progress * 100).toInt()}%',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -319,9 +318,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: provider.step1Progress,
-                                backgroundColor: AppColors.borderLight,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.outline,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
                                 ),
                                 minHeight: 6.h,
                               ),
@@ -335,7 +334,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                           style: AppTextStyles.titleLarge.copyWith(
                             fontSize: 17.sp,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
                       
@@ -345,13 +344,16 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                         Text('Full Name', style: TextStyle(
                           fontSize: 14.w,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onBackground,
 
                         )),
                         SizedBox(height: AppDimensions.verticalSpaceS),
                         TextFormField(
                           controller: _fullNameController,
                           keyboardType: TextInputType.text,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           decoration: const InputDecoration(hintText: 'Your full name'),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
@@ -372,7 +374,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                 Icon(
                                   Icons.info_outline,
                                   size: 14.w,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(width: 4.w),
                                 Expanded(
@@ -380,7 +382,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                     'Your name must match your ID card',
                                     style: TextStyle(
                                       fontSize: 12.sp,
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
@@ -397,7 +399,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             style: TextStyle(
                               fontSize: 14.w,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onBackground,
 
                             )
                           ),
@@ -406,11 +408,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                         DropdownButtonFormField<String>(
                           initialValue: provider.selectedGender,
                           decoration: const InputDecoration(hintText: 'Select your gender'),
-                          style: AppTextStyles.inputText,
+                          style: AppTextStyles.inputText.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          dropdownColor: Theme.of(context).colorScheme.surface,
                           items: _genderOptions.map((String gender) {
                             return DropdownMenuItem<String>(
                               value: gender,
-                              child: Text(gender),
+                              child: Text(
+                                gender,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
                             );
                           }).toList(),
                           onChanged: (String? newValue) {
@@ -433,7 +443,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             style: TextStyle(
                               fontSize: 14.w,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onBackground,
 
                             )
                         ),
@@ -445,11 +455,14 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             provider.setHasStartedTypingDateOfBirth(true);
                             _selectDate(context);
                           },
-                          decoration: const InputDecoration(
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          decoration: InputDecoration(
                             hintText: 'Select your date of birth',
                             suffixIcon: Icon(
                               Icons.calendar_today,
-                              color: AppColors.iconSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           validator: (value) {
@@ -468,7 +481,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                 Icon(
                                   Icons.info_outline,
                                   size: 14.w,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(width: 4.w),
                                 Expanded(
@@ -476,7 +489,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                     'Date of birth must match your ID card',
                                     style: TextStyle(
                                       fontSize: 12.sp,
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
@@ -493,7 +506,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             style: TextStyle(
                               fontSize: 14.w,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onBackground,
 
                             )
                         ),
@@ -502,6 +515,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                           controller: _mobileNumberController,
                           keyboardType: TextInputType.phone,
                           maxLength: 11,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           decoration: const InputDecoration(
                             hintText: 'Your phone no',
                             counterText: '', // Hide character counter
@@ -528,7 +544,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                 Icon(
                                   Icons.info_outline,
                                   size: 14.w,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(width: 4.w),
                                 Expanded(
@@ -536,7 +552,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                     'Phone number cannot be longer than 11 digits',
                                     style: TextStyle(
                                       fontSize: 12.sp,
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
@@ -553,7 +569,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             style: TextStyle(
                               fontSize: 14.w,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onBackground,
 
                             )
                         ),
@@ -562,6 +578,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                           controller: _alternatePhoneController,
                           keyboardType: TextInputType.phone,
                           maxLength: 11,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           decoration: const InputDecoration(
                             hintText: 'Your phone no',
                             counterText: '', // Hide character counter
@@ -588,7 +607,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                 Icon(
                                   Icons.info_outline,
                                   size: 14.w,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(width: 4.w),
                                 Expanded(
@@ -596,7 +615,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                                     'Phone number cannot be longer than 11 digits',
                                     style: TextStyle(
                                       fontSize: 12.sp,
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
@@ -613,7 +632,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                             style: TextStyle(
                               fontSize: 14.w,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onBackground,
 
                             )
                         ),
@@ -621,12 +640,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                         DropdownButtonFormField<String>(
                           initialValue: provider.selectedCity,
                           decoration: const InputDecoration(hintText: 'Your city'),
-                          style: AppTextStyles.inputText,
-
+                          style: AppTextStyles.inputText.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          dropdownColor: Theme.of(context).colorScheme.surface,
                           items: _cityOptions.map((String city) {
                             return DropdownMenuItem<String>(
                               value: city,
-                              child: Text(city),
+                              child: Text(
+                                city,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
                             );
                           }).toList(),
                           onChanged: (String? newValue) {
@@ -661,15 +687,12 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                   child: ElevatedButton(
                     onPressed: provider.isLoading ? null : _handleNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textOnPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.buttonRadius,
                         ),
                       ),
-                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                     ),
                     child: Text(
                       'Next',
@@ -686,14 +709,14 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               // Centered Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

@@ -37,7 +37,6 @@ class _BookingsPageState extends State<BookingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Consumer<BookingProvider>(
           builder: (context, provider, child) {
@@ -48,7 +47,7 @@ class _BookingsPageState extends State<BookingsPage> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: Stack(
                       children: [
                         RefreshIndicator(
@@ -70,7 +69,7 @@ class _BookingsPageState extends State<BookingsPage> {
                                     style: AppTextStyles.appBarTitle.copyWith(
                                       fontSize: 20.sp,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onBackground,
                                     ),
                                   ),
                                 ),
@@ -117,7 +116,7 @@ class _BookingsPageState extends State<BookingsPage> {
                                       child: Text(
                                         'No bookings found',
                                         style: AppTextStyles.bodyMedium.copyWith(
-                                          color: AppColors.textSecondary,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ),
@@ -229,7 +228,7 @@ class _BookingsPageState extends State<BookingsPage> {
                                   height: 24.w,
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primaryLight,
+                                      AppColors.primary,
                                     ),
                                     strokeWidth: 2,
                                   ),
@@ -296,17 +295,17 @@ class _FilterButton extends StatelessWidget {
           vertical: AppDimensions.paddingS,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppDimensions.radiusL),
           border: Border.all(
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             width: 1,
           ),
         ),
         child: Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
@@ -411,11 +410,11 @@ class _BookingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -439,13 +438,14 @@ class _BookingCard extends StatelessWidget {
                       booking.customerName,
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: AppDimensions.verticalSpaceXS),
                     Text(
                       '#ID: ${booking.bookingId}',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -481,7 +481,7 @@ class _BookingCard extends StatelessWidget {
           Text(
             booking.serviceName,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -496,14 +496,14 @@ class _BookingCard extends StatelessWidget {
                     Icon(
                       Icons.access_time,
                       size: AppDimensions.iconS,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: AppDimensions.paddingS),
                     Expanded(
                       child: Text(
                         '${booking.date}, ${booking.time}',
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -518,6 +518,7 @@ class _BookingCard extends StatelessWidget {
                     '\$${booking.price.toStringAsFixed(0)}',
                     style: AppTextStyles.priceText.copyWith(
                       fontSize: 18.sp,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -535,14 +536,14 @@ class _BookingCard extends StatelessWidget {
                     Icon(
                       Icons.location_on,
                       size: AppDimensions.iconS,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: AppDimensions.paddingS),
                     Expanded(
                       child: Text(
                         booking.location,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -552,7 +553,9 @@ class _BookingCard extends StatelessWidget {
               // "Fixed Price" aligned to the right
               Text(
                 booking.priceType,
-                style: AppTextStyles.bodySmall,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -566,7 +569,7 @@ class _BookingCard extends StatelessWidget {
                     label: 'Accept',
                     icon: null,
                     imagePath: 'assets/images/task_alt.png',
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     isOutlined: false,
                     onTap: onAccept ?? () {},
                   ),
@@ -591,7 +594,7 @@ class _BookingCard extends StatelessWidget {
               child: _ActionButton(
                 label: 'View Details',
                 icon: null,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 isOutlined: true,
                 onTap: onViewDetails ?? () {},
               ),
@@ -657,8 +660,12 @@ class _ActionButton extends StatelessWidget {
       return OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color, width: 1),
+          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 1,
+          ),
           padding: EdgeInsets.symmetric(
             vertical: AppDimensions.paddingS,
           ),
@@ -674,17 +681,17 @@ class _ActionButton extends StatelessWidget {
                 imagePath!,
                 width: AppDimensions.iconS,
                 height: AppDimensions.iconS,
-                color: AppColors.background,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               SizedBox(width: AppDimensions.paddingXS),
             ] else if (icon != null) ...[
-              Icon(icon, size: AppDimensions.iconS),
+              Icon(icon, size: AppDimensions.iconS, color: Theme.of(context).colorScheme.onSurface),
               SizedBox(width: AppDimensions.paddingXS),
             ],
             Text(
               label,
               style: AppTextStyles.buttonSmall.copyWith(
-                color: color,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -742,7 +749,7 @@ class _ActionButton extends StatelessWidget {
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        foregroundColor: Colors.white,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         padding: EdgeInsets.symmetric(
           vertical: AppDimensions.paddingS,
         ),
@@ -759,17 +766,17 @@ class _ActionButton extends StatelessWidget {
               imagePath!,
               width: AppDimensions.iconS,
               height: AppDimensions.iconS,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
             SizedBox(width: AppDimensions.paddingXS),
           ] else if (icon != null) ...[
-            Icon(icon, size: AppDimensions.iconS),
+            Icon(icon, size: AppDimensions.iconS, color: Theme.of(context).colorScheme.onPrimary),
             SizedBox(width: AppDimensions.paddingXS),
           ],
           Text(
             label,
             style: AppTextStyles.buttonSmall.copyWith(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ],

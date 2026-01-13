@@ -32,13 +32,15 @@ class ExploreHeaderWidget extends StatelessWidget {
               children: [
                 Text(
                   'Hello $userName',
-                  style: AppTextStyles.headlineMedium,
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
                 ),
                 SizedBox(height: AppDimensions.verticalSpaceXS),
                 Text(
                   "Here's what's happening today.",
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onBackground,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -54,7 +56,7 @@ class ExploreHeaderWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.border,
+                  color: Theme.of(context).colorScheme.outline,
                   width: 2,
                 ),
                 image: profileImageUrl != null
@@ -68,7 +70,7 @@ class ExploreHeaderWidget extends StatelessWidget {
                   ? Icon(
                       Icons.person,
                       size: AppDimensions.iconL,
-                      color: AppColors.iconSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )
                   : null,
             ),

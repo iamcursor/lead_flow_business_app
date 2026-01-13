@@ -200,7 +200,6 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SafeArea(
@@ -209,7 +208,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -229,7 +228,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -246,7 +245,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   'Help customer know you better and get more bookings.',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontSize: 14.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w400,
                                   ),
                                   textAlign: TextAlign.center,
@@ -263,7 +262,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   'Step 2 of 5',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -272,7 +271,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   '${(provider.step2Progress * 100).toInt()}%',
                                   style: AppTextStyles.labelMedium.copyWith(
                                     fontSize: 13.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -286,9 +285,9 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: provider.step2Progress,
-                                backgroundColor: AppColors.borderLight,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.outline,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
                                 ),
                                 minHeight: 6.h,
                               ),
@@ -299,10 +298,10 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                         // Personal Information Card
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -316,7 +315,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -328,24 +327,32 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   style: TextStyle(
                                     fontSize: 14.w,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 SizedBox(height: AppDimensions.verticalSpaceS),
                                 DropdownButtonFormField<String>(
                                   initialValue: provider.selectedExperience,
-                                  style: AppTextStyles.inputText,
-                                  decoration: const InputDecoration(
+                                  style: AppTextStyles.inputText.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  dropdownColor: Theme.of(context).colorScheme.surface,
+                                  decoration: InputDecoration(
                                     hintText: 'Select your experience',
                                     suffixIcon: Icon(
                                       Icons.keyboard_arrow_down,
-                                      color: AppColors.iconSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                   items: _experienceOptions.map((String experience) {
                                     return DropdownMenuItem<String>(
                                       value: experience,
-                                      child: Text(experience),
+                                      child: Text(
+                                        experience,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
                                     );
                                   }).toList(),
                                   onChanged: provider.setSelectedExperience,
@@ -365,7 +372,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   style: TextStyle(
                                     fontSize: 14.w,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 SizedBox(height: AppDimensions.verticalSpaceS),
@@ -378,7 +385,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                             height: 24.w,
                                             child: CircularProgressIndicator(
                                               valueColor: AlwaysStoppedAnimation<Color>(
-                                                AppColors.primaryLight,
+                                                AppColors.primary,
                                               ),
                                               strokeWidth: 2,
                                             ),
@@ -387,18 +394,26 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                       )
                                     : DropdownButtonFormField<String>(
                                         initialValue: provider.selectedServiceCategory,
-                                        style: AppTextStyles.inputText,
-                                        decoration: const InputDecoration(
+                                        style: AppTextStyles.inputText.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                        dropdownColor: Theme.of(context).colorScheme.surface,
+                                        decoration: InputDecoration(
                                           hintText: 'Select service category',
                                           suffixIcon: Icon(
                                             Icons.keyboard_arrow_down,
-                                            color: AppColors.iconSecondary,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                         items: provider.serviceCategories.map((category) {
                                           return DropdownMenuItem<String>(
                                             value: category.name,
-                                            child: Text(category.name),
+                                            child: Text(
+                                              category.name,
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSurface,
+                                              ),
+                                            ),
                                           );
                                         }).toList(),
                                         onChanged: provider.setSelectedServiceCategory,
@@ -420,10 +435,10 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                         if (provider.selectedServiceCategory != null && provider.selectedServiceCategory!.isNotEmpty)
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                               border: Border.all(
-                                color: AppColors.borderLight,
+                                color: Theme.of(context).colorScheme.outline,
                                 width: 1,
                               ),
                             ),
@@ -437,7 +452,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                     style: TextStyle(
                                       fontSize: 17.sp,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   
@@ -448,7 +463,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                     style: TextStyle(
                                       fontSize: 14.w,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   
@@ -464,7 +479,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                               height: 24.w,
                                               child: CircularProgressIndicator(
                                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                                  AppColors.primaryLight,
+                                                  AppColors.primary,
                                                 ),
                                                 strokeWidth: 2,
                                               ),
@@ -478,7 +493,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                                 'No sub-services available for this category',
                                                 style: AppTextStyles.labelMedium.copyWith(
                                                   fontSize: 14.sp,
-                                                  color: AppColors.textSecondary,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                               ),
                                             )
@@ -493,6 +508,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                                     style: AppTextStyles.labelLarge.copyWith(
                                                       fontSize: 14.sp,
                                                       fontWeight: FontWeight.w400,
+                                                      color: Theme.of(context).colorScheme.onSurface,
                                                     ),
                                                   ),
                                                   value: provider.subServices[service],
@@ -511,10 +527,10 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                         // Service Details Card - Service Area Radius
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -528,7 +544,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -542,7 +558,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                       style: TextStyle(
                                         fontSize: 14.w,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                     Text(
@@ -550,7 +566,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                       style: AppTextStyles.titleLarge.copyWith(
                                         fontSize: 14.w,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.primary,
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                     ),
                                   ],
@@ -561,25 +577,25 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                 // Slider
                                 SliderTheme(
                                   data: SliderTheme.of(context).copyWith(
-                                    activeTrackColor: AppColors.primary,
-                                    inactiveTrackColor: AppColors.borderLight,
+                                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                                    inactiveTrackColor: Theme.of(context).colorScheme.outline,
                                     trackHeight: 4.0,
-                                    thumbColor: AppColors.primary,
+                                    thumbColor: Theme.of(context).colorScheme.primary,
                                     thumbShape: const RoundSliderThumbShape(
                                       enabledThumbRadius: 8.0,
                                     ),
                                     overlayShape: const RoundSliderOverlayShape(
                                       overlayRadius: 16.0,
                                     ),
-                                    overlayColor: AppColors.primary.withOpacity(0.1),
+                                    overlayColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                   ),
                                   child: Slider(
                                     value: provider.serviceRadius,
                                     min: 2,
                                     max: 25,
                                     divisions: 23,
-                                    activeColor: AppColors.primary,
-                                    inactiveColor: AppColors.borderLight,
+                                    activeColor: Theme.of(context).colorScheme.primary,
+                                    inactiveColor: Theme.of(context).colorScheme.outline,
                                     onChanged: (double value) {
                                       provider.setServiceRadius(value);
                                     },
@@ -594,14 +610,14 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                       '2 km',
                                       style: AppTextStyles.labelSmall.copyWith(
                                         fontSize: 12.sp,
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                     Text(
                                       '25 km',
                                       style: AppTextStyles.labelSmall.copyWith(
                                         fontSize: 12.sp,
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ],
@@ -617,6 +633,7 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                                     style: AppTextStyles.labelLarge.copyWith(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   value: provider.useCurrentLocation,
@@ -650,15 +667,12 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
                   child: ElevatedButton(
                     onPressed: provider.isLoading ? null : _handleNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textOnPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.buttonRadius,
                         ),
                       ),
-                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                     ),
                     child: Text(
                       'Next',
@@ -675,14 +689,14 @@ class _CompleteProfileStep2PageState extends State<CompleteProfileStep2Page> {
               // Centered Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

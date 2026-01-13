@@ -25,11 +25,11 @@ class AvailableForWorkCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(AppDimensions.cardPadding),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -45,7 +45,8 @@ class AvailableForWorkCard extends StatelessWidget {
                 Text(
                   'Available for Work',
                   style: AppTextStyles.titleLarge.copyWith(
-                    fontWeight: FontWeight.w700
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 SizedBox(height: AppDimensions.verticalSpaceS),
@@ -54,13 +55,13 @@ class AvailableForWorkCard extends StatelessWidget {
                     Icon(
                       Icons.location_on,
                       size: AppDimensions.iconS,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: AppDimensions.paddingXS),
                     Text(
                       radius,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -69,7 +70,7 @@ class AvailableForWorkCard extends StatelessWidget {
                 Text(
                   "You're visible to the customers near you",
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],

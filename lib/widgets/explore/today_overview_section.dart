@@ -29,7 +29,9 @@ class TodayOverviewSection extends StatelessWidget {
           ),
           child: Text(
             "Today's Overview",
-            style: AppTextStyles.titleLarge,
+            style: AppTextStyles.titleLarge.copyWith(
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
         ),
         SizedBox(height: AppDimensions.verticalSpaceM),

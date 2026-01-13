@@ -377,7 +377,6 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
             body: Stack(
             children: [
               SafeArea(
@@ -386,7 +385,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimensions.screenPaddingHorizontal,
@@ -406,7 +405,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                 style: AppTextStyles.appBarTitle.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
                               ),
                             ),
@@ -423,7 +422,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   'Help customer know you better and get more bookings.',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontSize: 14.sp,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     fontWeight: FontWeight.w400,
                                   ),
                                   textAlign: TextAlign.center,
@@ -440,7 +439,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   'Step 4 of 5',
                                   style: AppTextStyles.labelMedium.copyWith(
                                       fontSize: 13.sp,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onBackground,
                                       fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -449,7 +448,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   '${(provider.step4Progress * 100).toInt()}%',
                                   style: AppTextStyles.labelMedium.copyWith(
                                       fontSize: 13.sp,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onBackground,
                                       fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -463,9 +462,9 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: provider.step4Progress,
-                                backgroundColor: AppColors.borderLight,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.primary,
+                                backgroundColor: Theme.of(context).colorScheme.outline,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
                                 ),
                                 minHeight: 6.h,
                               ),
@@ -476,10 +475,10 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                         // Availability & Rates Card
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -493,7 +492,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -504,7 +503,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w400,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 
@@ -520,29 +519,26 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                         child: InputDecorator(
                                           decoration: InputDecoration(
                                             hintText: 'Start time',
-                                            hintStyle: AppTextStyles.inputText.copyWith(
-                                              color: AppColors.textPrimary,
-                                            ),
-                                            suffixIcon: const Icon(
+                                            suffixIcon: Icon(
                                               Icons.keyboard_arrow_down,
-                                              color: AppColors.primary,
+                                              color: Theme.of(context).colorScheme.primary,
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.borderLight,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.outline,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.borderLight,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.outline,
                                               ),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.primary,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.symmetric(
@@ -554,8 +550,8 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                             provider.startTime != null ? _formatTime(provider.startTime) : 'Start time',
                                             style: AppTextStyles.inputText.copyWith(
                                               color: provider.startTime != null 
-                                                ? AppColors.textPrimary 
-                                                : AppColors.textHint,
+                                                ? Theme.of(context).colorScheme.onSurface 
+                                                : Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                           ),
                                         ),
@@ -571,29 +567,26 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                         child: InputDecorator(
                                           decoration: InputDecoration(
                                             hintText: 'End time',
-                                            hintStyle: AppTextStyles.inputText.copyWith(
-                                              color: AppColors.textPrimary,
-                                            ),
-                                            suffixIcon: const Icon(
+                                            suffixIcon: Icon(
                                               Icons.keyboard_arrow_down,
-                                              color: AppColors.primary,
+                                              color: Theme.of(context).colorScheme.primary,
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.borderLight,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.outline,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.borderLight,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.outline,
                                               ),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
-                                              borderSide: const BorderSide(
-                                                color: AppColors.primary,
+                                              borderSide: BorderSide(
+                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.symmetric(
@@ -605,8 +598,8 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                             provider.endTime != null ? _formatTime(provider.endTime) : 'End time',
                                             style: AppTextStyles.inputText.copyWith(
                                               color: provider.endTime != null 
-                                                ? AppColors.textPrimary 
-                                                : AppColors.textHint,
+                                                ? Theme.of(context).colorScheme.onSurface 
+                                                : Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                           ),
                                         ),
@@ -626,10 +619,10 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                         // Service Details Card - Sub Services
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -643,7 +636,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
 
@@ -661,6 +654,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                       style: AppTextStyles.labelLarge.copyWith(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                     value: provider.availabilityDays[service],
@@ -680,10 +674,10 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                         // Service Rate Card
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
                             border: Border.all(
-                              color: AppColors.borderLight,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1,
                             ),
                           ),
@@ -697,24 +691,32 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   style: TextStyle(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 SizedBox(height: AppDimensions.verticalSpaceS),
                                 DropdownButtonFormField<String>(
                                   initialValue: provider.serviceRate,
-                                  style: AppTextStyles.inputText,
-                                  decoration: const InputDecoration(
+                                  style: AppTextStyles.inputText.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  dropdownColor: Theme.of(context).colorScheme.surface,
+                                  decoration: InputDecoration(
                                     hintText: 'Select service rate',
                                     suffixIcon: Icon(
                                       Icons.keyboard_arrow_down,
-                                      color: AppColors.iconSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                   items: _serviceRateOptions.map((String rate) {
                                     return DropdownMenuItem<String>(
                                       value: rate,
-                                      child: Text(rate),
+                                      child: Text(
+                                        rate,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
                                     );
                                   }).toList(),
                                   onChanged: (String? newValue) {
@@ -733,7 +735,7 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                                   style: TextStyle(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w400,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -800,15 +802,12 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
                   child: ElevatedButton(
                     onPressed: provider.isLoading ? null : _handleNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textOnPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.buttonRadius,
                         ),
                       ),
-                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                     ),
                     child: Text(
                       'Next',
@@ -825,14 +824,14 @@ class _CompleteProfileStep4PageState extends State<CompleteProfileStep4Page> {
               // Centered Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          AppColors.primary,
                         ),
                         strokeWidth: 2,
                       ),

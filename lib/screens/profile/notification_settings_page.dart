@@ -22,7 +22,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -39,7 +39,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   IconButton(
                     icon: Icon(
                       Icons.arrow_back,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: AppDimensions.iconM,
                     ),
                     onPressed: () =>  Navigator.pop(context),
@@ -54,7 +54,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         style: AppTextStyles.appBarTitle.copyWith(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onBackground,
                         ),
                       ),
                     ),
@@ -135,11 +135,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -157,14 +157,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     title,
                     style: AppTextStyles.titleLarge.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceXS),
                   Text(
                     subtitle,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

@@ -130,7 +130,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to pick image: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -168,17 +168,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _selectedImageNotifier.value = null;
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Profile updated successfully'),
-            backgroundColor: AppColors.success,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
         );
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Failed to update profile. Please try again.'),
-            backgroundColor: AppColors.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -198,7 +198,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             }
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: Stack(
             children: [
               SingleChildScrollView(
@@ -217,14 +217,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             left: AppDimensions.screenPaddingHorizontal,
                             right: AppDimensions.screenPaddingHorizontal,
                           ),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           child: Row(
                             children: [
                               IconButton(
                                 onPressed: () =>  Navigator.pop(context),
-                                icon: const Icon(Icons.arrow_back, color: AppColors.textOnPrimary),
+                                icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onPrimary),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                               ),
@@ -233,7 +233,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 child: Text(
                                   'Edit Profile',
                                   style: AppTextStyles.appBarTitle.copyWith(
-                                    color: AppColors.textOnPrimary,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                     fontSize: 20.sp,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -260,14 +260,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     height: 120.w,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: AppColors.backgroundSecondary,
+                                      color: Theme.of(context).colorScheme.surfaceVariant,
                                       border: Border.all(
-                                        color: AppColors.textOnPrimary,
+                                        color: Theme.of(context).colorScheme.onPrimary,
                                         width: 4,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.shadowMedium,
+                                          color: Colors.black.withOpacity(0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -308,7 +308,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               profileImageUrl,
                                               fit: BoxFit.cover,
                                               errorBuilder: (context, error, stackTrace) {
-                                                return Icon(Icons.person, size: 60.w, color: AppColors.textSecondary);
+                                                return Icon(Icons.person, size: 60.w, color: Theme.of(context).colorScheme.onSurfaceVariant);
                                               },
                                               loadingBuilder: (context, child, loadingProgress) {
                                                 if (loadingProgress == null) return child;
@@ -328,7 +328,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                             child: Image.asset(provider.photoPath!, fit: BoxFit.cover),
                                           );
                                         } else {
-                                          return Icon(Icons.person, size: 60.w, color: AppColors.textSecondary);
+                                          return Icon(Icons.person, size: 60.w, color: Theme.of(context).colorScheme.onSurfaceVariant);
                                         }
                                       },
                                     ),
@@ -340,17 +340,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       width: 24.w,
                                       height: 24.w,
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary,
+                                        color: Theme.of(context).colorScheme.primary,
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: AppColors.surface,
+                                          color: Theme.of(context).colorScheme.surface,
                                           width: 2,
                                         ),
                                       ),
                                       child: Icon(
                                         Icons.camera_alt,
                                         size: 12.w,
-                                        color: AppColors.textOnPrimary,
+                                        color: Theme.of(context).colorScheme.onPrimary,
                                       ),
                                     ),
                                   ),
@@ -375,7 +375,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             // Username Field
                             Text(
                               'Username',
-                              style: AppTextStyles.labelLarge,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             TextFormField(
@@ -384,7 +386,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 hintText: 'Enter your username',
                                 hintStyle: AppTextStyles.inputHint,
                               ),
-                              style: AppTextStyles.inputText,
+                              style: AppTextStyles.inputText.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               validator: (value) {
                                 if (value?.isEmpty ?? true) {
                                   return 'Please enter your username';
@@ -404,7 +408,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             // Phone Number Field
                             Text(
                               'Phone Number',
-                              style: AppTextStyles.labelLarge,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             TextFormField(
@@ -414,7 +420,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 hintText: 'Enter your phone number',
                                 hintStyle: AppTextStyles.inputHint,
                               ),
-                              style: AppTextStyles.inputText,
+                              style: AppTextStyles.inputText.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               validator: (value) {
                                 if (value?.isEmpty ?? true) {
                                   return 'Please enter your phone number';
@@ -428,26 +436,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             // Service Dropdown
                             Text(
                               'Service',
-                              style: AppTextStyles.labelLarge,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             provider.isLoadingCategories
                                 ? const Center(child: CircularProgressIndicator())
                                 : DropdownButtonFormField<String>(
                                     initialValue: provider.selectedServiceCategory,
-                                    style: AppTextStyles.inputText,
+                                    style: AppTextStyles.inputText.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                                     decoration: InputDecoration(
                                       hintText: 'Select service',
                                       hintStyle: AppTextStyles.inputHint,
-                                      suffixIcon: const Icon(
+                                      suffixIcon: Icon(
                                         Icons.keyboard_arrow_down,
-                                        color: AppColors.iconSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                     items: provider.serviceCategories.map((category) {
                                       return DropdownMenuItem<String>(
                                         value: category.name,
-                                        child: Text(category.name),
+                                        child: Text(
+                                          category.name,
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                        ),
                                       );
                                     }).toList(),
                                     onChanged: (String? newValue) {
@@ -466,18 +483,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             // Location Dropdown
                             Text(
                               'Location',
-                              style: AppTextStyles.labelLarge,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             DropdownButtonFormField<String>(
                               initialValue: provider.selectedCity,
-                              style: AppTextStyles.inputText,
+                              style: AppTextStyles.inputText.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Select location',
                                 hintStyle: AppTextStyles.inputHint,
-                                suffixIcon: const Icon(
+                                suffixIcon: Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: AppColors.iconSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               items: _cityOptions.map((String city) {
@@ -486,7 +507,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     : city;
                                 return DropdownMenuItem<String>(
                                   value: city,
-                                  child: Text(displayText),
+                                  child: Text(
+                                    displayText,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (String? newValue) {
@@ -507,8 +533,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: AppColors.textOnPrimary,
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                   padding: EdgeInsets.symmetric(
                                     vertical: AppDimensions.paddingM,
                                   ),
@@ -538,14 +564,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               // Loader Overlay
               if (provider.isLoading)
                 Container(
-                  color: AppColors.overlayLight,
+                  color: Colors.black.withOpacity(0.3),
                   child: Center(
                     child: SizedBox(
                       width: 24.w,
                       height: 24.w,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryLight,
+                          Theme.of(context).colorScheme.primary,
                         ),
                         strokeWidth: 2,
                       ),

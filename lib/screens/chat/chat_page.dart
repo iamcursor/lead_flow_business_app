@@ -41,7 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -88,13 +88,14 @@ class _ChatPageState extends State<ChatPage> {
                 style: AppTextStyles.appBarTitle.copyWith(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
             ),
           ),
 
-          // Empty space to balance
-          SizedBox(width: AppDimensions.iconM),
+          // Filter Icon
+
         ],
       ),
     );
@@ -110,8 +111,16 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           // Search Bar
           Expanded(
-            child: SizedBox(
+            child: Container(
               height: 46.h,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 1,
+                ),
+              ),
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -121,7 +130,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   prefixIcon: Icon(
                     Icons.search,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: AppDimensions.iconM,
                   ),
                   border: InputBorder.none,
@@ -132,6 +141,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 style: AppTextStyles.inputText.copyWith(
                   fontSize: 14.sp,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -144,17 +154,17 @@ class _ChatPageState extends State<ChatPage> {
             width: 44.w,
             height: 46.w,
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppColors.border,
+                color: Theme.of(context).colorScheme.outline,
                 width: 1,
               ),
             ),
             child: IconButton(
               icon: Icon(
                 Icons.tune,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.onSurface,
                 size: AppDimensions.iconM,
               ),
               onPressed: () {
@@ -203,6 +213,21 @@ class _ChatPageState extends State<ChatPage> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    IconData icon;
+    switch (label) {
+      case 'All':
+        icon = Icons.email;
+        break;
+      case 'Unread':
+        icon = Icons.mark_email_unread;
+        break;
+      case 'Pinned':
+        icon = Icons.push_pin;
+        break;
+      default:
+        icon = Icons.circle;
+    }
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -211,19 +236,38 @@ class _ChatPageState extends State<ChatPage> {
           vertical: AppDimensions.paddingS,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected 
+              ? Theme.of(context).colorScheme.primary 
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppDimensions.radiusL),
           border: Border.all(
-            color: AppColors.primary,
+            color: isSelected 
+                ? Theme.of(context).colorScheme.primary 
+                : Theme.of(context).colorScheme.outline,
             width: 1,
           ),
         ),
-        child: Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16.w,
+              color: isSelected 
+                  ? Theme.of(context).colorScheme.onPrimary 
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
+            SizedBox(width: AppDimensions.paddingXS),
+            Text(
+              label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: isSelected 
+                    ? Theme.of(context).colorScheme.onPrimary 
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -233,7 +277,7 @@ class _ChatPageState extends State<ChatPage> {
     if (provider.isLoadingChatRooms && provider.allChats.isEmpty) {
       return Center(
         child: CircularProgressIndicator(
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
         ),
       );
     }
@@ -246,7 +290,7 @@ class _ChatPageState extends State<ChatPage> {
             Text(
               provider.chatRoomsErrorMessage!,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             SizedBox(height: AppDimensions.paddingM),
@@ -268,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
               ? 'No chats found'
               : 'No chats yet',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       );
@@ -276,7 +320,7 @@ class _ChatPageState extends State<ChatPage> {
 
     return RefreshIndicator(
       onRefresh: () => provider.fetchChatRooms(),
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       child: ListView.builder(
         padding: EdgeInsets.symmetric(
           horizontal: AppDimensions.screenPaddingHorizontal,
@@ -296,6 +340,7 @@ class _ChatPageState extends State<ChatPage> {
                 style: AppTextStyles.titleLarge.copyWith(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
             );
@@ -328,11 +373,11 @@ class _ChatPageState extends State<ChatPage> {
         margin: EdgeInsets.only(bottom: AppDimensions.paddingS),
         padding: EdgeInsets.all(AppDimensions.paddingM),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowLight,
+              color: Colors.black.withOpacity(0.1),
               blurRadius: AppDimensions.shadowBlurRadius,
             ),
           ],
@@ -345,7 +390,7 @@ class _ChatPageState extends State<ChatPage> {
               height: 56.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceVariant,
               ),
               child: chat.profileImageUrl != null && chat.profileImageUrl!.isNotEmpty
                   ? ClipOval(
@@ -377,6 +422,7 @@ class _ChatPageState extends State<ChatPage> {
                           style: AppTextStyles.titleMedium.copyWith(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -388,7 +434,7 @@ class _ChatPageState extends State<ChatPage> {
                             provider.formatTimestamp(chat.timestamp),
                             style: AppTextStyles.bodySmall.copyWith(
                               fontSize: 12.sp,
-                              color: AppColors.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           );
                         },
@@ -407,7 +453,7 @@ class _ChatPageState extends State<ChatPage> {
                           chat.lastMessage,
                           style: AppTextStyles.bodySmall.copyWith(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -418,7 +464,7 @@ class _ChatPageState extends State<ChatPage> {
                           width: 20.w,
                           height: 20.w,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -427,7 +473,7 @@ class _ChatPageState extends State<ChatPage> {
                               style: AppTextStyles.bodySmall.copyWith(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textOnPrimary,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             ),
                           ),
@@ -454,7 +500,7 @@ class _ChatPageState extends State<ChatPage> {
         style: AppTextStyles.titleMedium.copyWith(
           fontSize: 18.sp,
           fontWeight: FontWeight.w600,
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

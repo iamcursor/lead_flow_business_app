@@ -34,11 +34,11 @@ class NewJobRequestCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(AppDimensions.cardPadding),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -52,12 +52,14 @@ class NewJobRequestCard extends StatelessWidget {
               Icon(
                 Icons.notifications,
                 size: AppDimensions.iconM,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppDimensions.paddingS),
               Text(
                 'New Job Request',
-                style: AppTextStyles.titleLarge,
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -72,13 +74,15 @@ class NewJobRequestCard extends StatelessWidget {
                   children: [
                     Text(
                       '$customerName, $distance',
-                      style: AppTextStyles.bodyMedium,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                     SizedBox(height: AppDimensions.verticalSpaceXS),
                     Text(
                       serviceType.isNotEmpty ? serviceType : 'AC Servicing',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -88,13 +92,13 @@ class NewJobRequestCard extends StatelessWidget {
                         Icon(
                           Icons.access_time,
                           size: AppDimensions.iconS,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         SizedBox(width: AppDimensions.paddingXS),
                         Text(
                           timeFrame,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textPrimary
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -106,7 +110,8 @@ class NewJobRequestCard extends StatelessWidget {
                 price,
                 style: AppTextStyles.priceText.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontSize: 14
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -118,8 +123,6 @@ class NewJobRequestCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onAccept,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),

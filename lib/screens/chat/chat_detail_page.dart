@@ -104,7 +104,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(),
         body: Consumer<ChatProvider>(
         builder: (context, provider, child) {
@@ -115,7 +115,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(provider.sendMessageError!),
-                    backgroundColor: AppColors.error,
+                    backgroundColor: Theme.of(context).colorScheme.error,
                   ),
                 );
               }
@@ -141,7 +141,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   ),
                   color: provider.isConnecting
                       ? Colors.orange
-                      : AppColors.error,
+                      : Theme.of(context).colorScheme.error,
                   child: Row(
                     children: [
                       Icon(
@@ -183,15 +183,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
-      shadowColor: AppColors.shadowLight,
+      shadowColor: Colors.black.withOpacity(0.1),
       flexibleSpace: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowLight,
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -209,7 +209,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 IconButton(
                   icon: Icon(
                     Icons.arrow_back,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: AppDimensions.iconM,
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -225,7 +225,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   height: 40.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
                   ),
                   child: widget.contactProfileImageUrl != null && widget.contactProfileImageUrl!.isNotEmpty
                       ? ClipOval(
@@ -249,6 +249,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     style: AppTextStyles.titleLarge.copyWith(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -257,7 +258,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 IconButton(
                   icon: Icon(
                     Icons.phone,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: AppDimensions.iconM,
                   ),
                   onPressed: () {
@@ -273,7 +274,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: AppDimensions.iconM,
                   ),
                   onPressed: () {
@@ -294,7 +295,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     if (provider.isLoading && provider.messages.isEmpty) {
       return Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
         ),
       );
     }
@@ -309,13 +310,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               Icon(
                 Icons.error_outline,
                 size: 48.w,
-                color: AppColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               SizedBox(height: AppDimensions.verticalSpaceM),
               Text(
                 provider.errorMessage!,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.error,
+                  color: Theme.of(context).colorScheme.error,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -337,7 +338,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         child: Text(
           'No messages yet. Start the conversation!',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       );
@@ -437,14 +438,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           vertical: AppDimensions.paddingS,
         ),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant.withOpacity(0.6),
+          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Text(
           _formatDateSeparator(dateTime),
           style: AppTextStyles.bodySmall.copyWith(
             fontSize: 12.sp,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -467,7 +468,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             vertical: AppDimensions.paddingS,
           ),
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
@@ -483,7 +484,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 message.content,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 14.sp,
-                  color: AppColors.textOnPrimary,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
               SizedBox(height: 2.h),
@@ -491,7 +492,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 provider.formatMessageTime(message.createdAt),
                 style: AppTextStyles.bodySmall.copyWith(
                   fontSize: 11.sp,
-                  color: AppColors.textOnPrimary.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7),
                 ),
               ),
             ],
@@ -514,7 +515,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               ),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceVariant,
               ),
               child: widget.contactProfileImageUrl != null && widget.contactProfileImageUrl!.isNotEmpty
                   ? ClipOval(
@@ -543,7 +544,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 vertical: AppDimensions.paddingS,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5), // Light grey
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16.r),
                   topRight: Radius.circular(16.r),
@@ -559,7 +560,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     message.content,
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 14.sp,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -567,7 +568,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     provider.formatMessageTime(message.createdAt),
                     style: AppTextStyles.bodySmall.copyWith(
                       fontSize: 11.sp,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -593,7 +594,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           vertical: AppDimensions.paddingS,
         ),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5), // Light grey
+          color: Theme.of(context).colorScheme.surfaceVariant,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(16.r),
             topRight: Radius.circular(16.r),
@@ -605,7 +606,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           '${widget.contactName} is typing...',
           style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 14.sp,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -624,7 +625,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         style: AppTextStyles.titleMedium.copyWith(
           fontSize: 18.sp,
           fontWeight: FontWeight.w600,
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );
@@ -637,7 +638,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         vertical: AppDimensions.paddingM,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: Row(
         children: [
@@ -646,17 +647,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             width: 42.w,
             height: 44.w,
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(10.r),
               border: Border.all(
-                color: AppColors.border,
+                color: Theme.of(context).colorScheme.outline,
                 width: 1,
               ),
             ),
             child: IconButton(
               icon: Icon(
                 Icons.image_outlined,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: AppDimensions.iconM,
               ),
               onPressed: () {
@@ -692,7 +693,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   fontSize: 14.sp,
                 ),
                 filled: true,
-                fillColor: AppColors.surfaceVariant,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
                   borderSide: BorderSide.none,
@@ -704,6 +705,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               ),
               style: AppTextStyles.inputText.copyWith(
                 fontSize: 14.sp,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -715,13 +717,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             width: 44.w,
             height: 44.w,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.circle,
             ),
             child: IconButton(
               icon: Icon(
-                Icons.send,
-                color: AppColors.textOnPrimary,
+                Icons.arrow_upward,
+                color: Theme.of(context).colorScheme.onPrimary,
                 size: AppDimensions.iconM,
               ),
               onPressed: () {

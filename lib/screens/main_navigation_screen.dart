@@ -62,7 +62,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowLight,
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -84,16 +84,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             }
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.surface,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textSecondary,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          selectedItemColor: Theme.of(context).colorScheme.primary,
+          unselectedItemColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurfaceVariant,
           selectedFontSize: 12.sp,
           unselectedFontSize: 12.sp,
           elevation: 0,
           items: [
             BottomNavigationBarItem(
               icon: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/dashboard.png',
                   width: 24.w,
@@ -101,7 +108,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
               ),
               activeIcon: ColorFiltered(
-                colorFilter: ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/dashboard.png',
                   width: 24.w,
@@ -112,7 +122,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             BottomNavigationBarItem(
               icon: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/task_alt.png',
                   width: 24.w,
@@ -120,7 +135,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
               ),
               activeIcon: ColorFiltered(
-                colorFilter: ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/task_alt.png',
                   width: 24.w,
@@ -131,7 +149,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             BottomNavigationBarItem(
               icon: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/credit_card.png',
                   width: 24.w,
@@ -139,7 +162,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
               ),
               activeIcon: ColorFiltered(
-                colorFilter: ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/credit_card.png',
                   width: 24.w,
@@ -150,7 +176,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             BottomNavigationBarItem(
               icon: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/Message 24.png',
                   width: 24.w,
@@ -158,7 +189,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
               ),
               activeIcon: ColorFiltered(
-                colorFilter: ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/Message 24.png',
                   width: 24.w,
@@ -169,7 +203,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             BottomNavigationBarItem(
               icon: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/Frame.png',
                   width: 24.w,
@@ -177,7 +216,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
               ),
               activeIcon: ColorFiltered(
-                colorFilter: ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
                 child: Image.asset(
                   'assets/images/Frame.png',
                   width: 24.w,

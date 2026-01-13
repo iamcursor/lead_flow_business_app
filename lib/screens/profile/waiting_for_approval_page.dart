@@ -70,7 +70,7 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
@@ -80,13 +80,21 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Clock Icon
+                  // Clock Icon - Large filled circle with clock
                   ScaleTransition(
                     scale: _scaleAnimation,
-                    child: Icon(
-                      Icons.access_time,
-                      color: AppColors.primary,
-                      size: 50.w,
+                    child: Container(
+                      width: 80.w,
+                      height: 80.w,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.access_time,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 40.w,
+                      ),
                     ),
                   ),
                   SizedBox(height: AppDimensions.verticalSpaceL),
@@ -97,7 +105,7 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
                     child: Text(
                       'Waiting for Approval',
                       style: AppTextStyles.appBarTitle.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 22.sp,
                       ),
@@ -116,7 +124,7 @@ class _WaitingForApprovalPageState extends State<WaitingForApprovalPage>
                       child: Text(
                         'We\'ve received your request and are\nwaiting for the approval. Please wait a few\nminutes.',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onBackground,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
                           height: 1.5,

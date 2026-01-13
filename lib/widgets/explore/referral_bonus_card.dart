@@ -23,11 +23,11 @@ class ReferralBonusCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(AppDimensions.cardPadding),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -56,14 +56,14 @@ class ReferralBonusCard extends StatelessWidget {
                 Text(
                   'Referral bonus',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 SizedBox(height: AppDimensions.verticalSpaceXS),
                 Text(
                   "You've earned $referralCount referrals this week, $bonusAmount in bonus!",
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],

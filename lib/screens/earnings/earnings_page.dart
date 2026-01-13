@@ -30,7 +30,7 @@ class _EarningsPageState extends State<EarningsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Consumer<EarningsProvider>(
           builder: (context, provider, child) {
@@ -39,7 +39,7 @@ class _EarningsPageState extends State<EarningsPage> {
                 // Main Content
                 Expanded(
                   child: Container(
-                    color: AppColors.background,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: Stack(
                       children: [
                         RefreshIndicator(
@@ -61,7 +61,7 @@ class _EarningsPageState extends State<EarningsPage> {
                                     style: AppTextStyles.appBarTitle.copyWith(
                                       fontSize: 20.sp,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onBackground,
                                     ),
                                   ),
                                 ),
@@ -85,7 +85,7 @@ class _EarningsPageState extends State<EarningsPage> {
                                           Text(
                                             provider.errorMessage!,
                                             style: AppTextStyles.bodyMedium.copyWith(
-                                              color: AppColors.error,
+                                              color: Theme.of(context).colorScheme.error,
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
@@ -140,7 +140,7 @@ class _EarningsPageState extends State<EarningsPage> {
                                 height: 24.w,
                                 child: CircularProgressIndicator(
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.primaryLight,
+                                    Theme.of(context).colorScheme.primary,
                                   ),
                                   strokeWidth: 2,
                                 ),
@@ -179,10 +179,14 @@ class _EarningsPageState extends State<EarningsPage> {
                   vertical: AppDimensions.paddingS,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : AppColors.surface,
+                  color: isSelected 
+                      ? Theme.of(context).colorScheme.primary 
+                      : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusL),
                   border: Border.all(
-                    color: AppColors.primary,
+                    color: isSelected 
+                        ? Theme.of(context).colorScheme.primary 
+                        : Theme.of(context).colorScheme.outline,
                     width: 1,
                   ),
                 ),
@@ -190,7 +194,9 @@ class _EarningsPageState extends State<EarningsPage> {
                   child: Text(
                     range,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                      color: isSelected 
+                          ? Theme.of(context).colorScheme.onPrimary 
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       fontSize: 12.sp,
                     ),
@@ -214,6 +220,7 @@ class _EarningsPageState extends State<EarningsPage> {
           'Earnings Summary',
           style: AppTextStyles.titleLarge.copyWith(
             fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onBackground,
           ),
         ),
         SizedBox(height: AppDimensions.verticalSpaceM),
@@ -271,11 +278,11 @@ class _EarningsPageState extends State<EarningsPage> {
   Widget _buildDailyEarnings(EarningsProvider provider) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -291,6 +298,7 @@ class _EarningsPageState extends State<EarningsPage> {
               'Daily Earnings',
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -312,11 +320,11 @@ class _EarningsPageState extends State<EarningsPage> {
   Widget _buildJobWiseEarnings(EarningsProvider provider) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -332,6 +340,7 @@ class _EarningsPageState extends State<EarningsPage> {
               'Job Wise Earnings',
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -356,7 +365,7 @@ class _EarningsPageState extends State<EarningsPage> {
                   Divider(
                     height: 1,
                     thickness: 1,
-                    color: AppColors.borderLight,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
               ],
             );
@@ -371,8 +380,8 @@ class _EarningsPageState extends State<EarningsPage> {
                   // TODO: Navigate to all jobs
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: EdgeInsets.symmetric(
                     vertical: AppDimensions.paddingM,
                   ),
@@ -395,11 +404,11 @@ class _EarningsPageState extends State<EarningsPage> {
   Widget _buildPayoutWallet(EarningsProvider provider) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -415,6 +424,7 @@ class _EarningsPageState extends State<EarningsPage> {
               'Payout & Wallet',
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -424,7 +434,7 @@ class _EarningsPageState extends State<EarningsPage> {
               children: [
                 Icon(
                   Icons.account_balance_wallet,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: AppDimensions.iconL,
                 ),
                 SizedBox(width: AppDimensions.paddingM),
@@ -435,7 +445,7 @@ class _EarningsPageState extends State<EarningsPage> {
                       Text(
                         'Wallet Balance',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceXS),
@@ -444,7 +454,7 @@ class _EarningsPageState extends State<EarningsPage> {
                         style: AppTextStyles.titleLarge.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 24.sp,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -463,8 +473,8 @@ class _EarningsPageState extends State<EarningsPage> {
                   // TODO: Navigate to payout details
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: EdgeInsets.symmetric(
                     vertical: AppDimensions.paddingM,
                   ),
@@ -505,11 +515,11 @@ class _EarningsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppDimensions.cardPadding),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: Offset(0, AppDimensions.shadowOffset),
           ),
@@ -540,7 +550,7 @@ class _EarningsCard extends StatelessWidget {
             style: AppTextStyles.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
               fontSize: 20.sp,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
@@ -548,7 +558,7 @@ class _EarningsCard extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -572,7 +582,7 @@ class _DailyEarningsChart extends StatelessWidget {
         child: Text(
           'No data available',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       );
@@ -603,7 +613,7 @@ class _DailyEarningsChart extends StatelessWidget {
                       '\$$value',
                       style: AppTextStyles.bodySmall.copyWith(
                         fontSize: 10.sp,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -630,7 +640,7 @@ class _DailyEarningsChart extends StatelessWidget {
                         left: 0,
                         right: 0,
                         child: CustomPaint(
-                          painter: DashedLinePainter(color: AppColors.borderLight),
+                          painter: DashedLinePainter(color: Theme.of(context).colorScheme.outlineVariant),
                           child: Container(
                             height: 1,
                           ),
@@ -686,7 +696,7 @@ class _DailyEarningsChart extends StatelessWidget {
                         days[index % days.length],
                         style: AppTextStyles.bodySmall.copyWith(
                           fontSize: 10.sp,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -778,7 +788,7 @@ class _JobEarningsEntry extends StatelessWidget {
                 job.jobTitle,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               SizedBox(height: AppDimensions.verticalSpaceS),
@@ -788,13 +798,13 @@ class _JobEarningsEntry extends StatelessWidget {
                   Icon(
                     Icons.calendar_today,
                     size: AppDimensions.iconS,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   SizedBox(width: AppDimensions.paddingS),
                   Text(
                     '${job.date} - ${job.time}',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -806,8 +816,12 @@ class _JobEarningsEntry extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onViewDetails,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: BorderSide(color: AppColors.primary, width: 1),
+                    backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                      width: 1,
+                    ),
                     padding: EdgeInsets.symmetric(
                       vertical: AppDimensions.paddingS,
                     ),
@@ -818,7 +832,7 @@ class _JobEarningsEntry extends StatelessWidget {
                   child: Text(
                     'View Details',
                     style: AppTextStyles.buttonSmall.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -836,7 +850,7 @@ class _JobEarningsEntry extends StatelessWidget {
               '\$${job.amount.toStringAsFixed(0)}',
               style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             SizedBox(height: AppDimensions.verticalSpaceS),
