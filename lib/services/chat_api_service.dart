@@ -152,7 +152,7 @@ class ChatApiService {
   Future<ChatRoom?> createChatRoom(String otherUserId) async {
     try {
       final response = await RequestProvider.post(
-        url: AppUrl.chatRooms,
+        url: AppUrl.createChatRoom,
         body: {
           'other_user_id': otherUserId,
         },

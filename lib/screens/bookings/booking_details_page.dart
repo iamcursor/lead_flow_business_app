@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-// import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
 import '../../models/booking/booking_model.dart';
 import '../../providers/booking_provider.dart';
+import '../../services/chat_api_service.dart';
+import '../../providers/user_search_provider.dart';
+import '../chat/chat_detail_page.dart';
 import 'completed_booking_details_page.dart';
 
 class BookingDetailsPage extends StatefulWidget {
@@ -147,7 +150,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                               IconButton(
                                 icon: Icon(
                                   Icons.arrow_back,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white
+                                      : Theme.of(context).colorScheme.primary,
                                   size: AppDimensions.iconM,
                                 ),
                                 onPressed: () => Navigator.pop(context),
@@ -373,11 +378,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildContactButton(
-                      icon: Icons.phone,
-                      onTap: () => _makePhoneCall(),
-                    ),
-                    SizedBox(width: AppDimensions.paddingS),
-                    _buildContactButton(
                       icon: Icons.message,
                       onTap: () => _sendMessage(),
                     ),
@@ -406,7 +406,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ),
         child: Icon(
           icon,
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Theme.of(context).colorScheme.primary,
           size: AppDimensions.iconM,
         ),
       ),
@@ -581,17 +583,75 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Future<void> _makePhoneCall() async {
-    if (widget.booking.customerPhone != null) {
-      // TODO: Implement phone call functionality
 
-    }
-  }
 
   Future<void> _sendMessage() async {
-    if (widget.booking.customerPhone != null) {
-      // TODO: Implement messaging functionality
+    if (widget.booking.customerId == null || widget.booking.customerId!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Customer information not available'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
 
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      );
+
+      // Create chat room with customer using UserSearchProvider
+      final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
+      final chatRoom = await searchProvider.createChatRoomWithUser(widget.booking.customerId!);
+
+      // Close loading dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      if (chatRoom != null && mounted) {
+        // Navigate to chat detail page with room ID
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatDetailPage(
+              roomId: chatRoom.id,
+              contactName: widget.booking.customerName,
+              contactProfileImageUrl: widget.booking.customerProfilePicture,
+            ),
+          ),
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(searchProvider.createRoomError ?? 'Failed to open chat. Please try again.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening chat: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 

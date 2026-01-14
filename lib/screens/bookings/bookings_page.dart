@@ -376,7 +376,7 @@ class _BookingCard extends StatelessWidget {
       case 'completed':
         return 'Completed';
       case 'cancelled':
-        return 'Canceled';
+        return 'Cancelled';
       case 'rejected':
         return 'Rejected';
       default:

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../models/chat/chat_model.dart';
+import '../../models/chat/chat_user.dart';
 import 'chat_detail_page.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
 import '../../providers/chat_provider.dart';
+import '../../providers/user_search_provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -27,8 +29,8 @@ class _ChatPageState extends State<ChatPage> {
       provider.startChatRoomsTimestampUpdateTimer();
     });
     _searchController.addListener(() {
-      final provider = Provider.of<ChatProvider>(context, listen: false);
-      provider.setSearchQuery(_searchController.text);
+      final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
+      searchProvider.searchUsers(_searchController.text);
     });
   }
 
@@ -58,11 +60,15 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
 
-            // Chat List
+            // Chat List or Search Results
             Expanded(
-              child: Consumer<ChatProvider>(
-                builder: (context, provider, child) {
-                  return _buildChatList(provider);
+              child: Consumer2<ChatProvider, UserSearchProvider>(
+                builder: (context, chatProvider, searchProvider, child) {
+                  // Show search results if there are any searched users or if search is active
+                  if (searchProvider.searchedUsers.isNotEmpty || searchProvider.isSearchingUsers) {
+                    return _buildSearchResults(searchProvider);
+                  }
+                  return _buildChatList(chatProvider);
                 },
               ),
             ),
@@ -80,20 +86,6 @@ class _ChatPageState extends State<ChatPage> {
       ),
       child: Row(
         children: [
-          // Back Button
-          IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Theme.of(context).colorScheme.onBackground,
-              size: AppDimensions.iconM,
-            ),
-            onPressed: () => Navigator.pop(context),
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-          ),
-          
-          SizedBox(width: AppDimensions.paddingM),
-          
           // Title
           Expanded(
             child: Center(
@@ -137,6 +129,11 @@ class _ChatPageState extends State<ChatPage> {
               ),
               child: TextField(
                 controller: _searchController,
+                onTap: () {
+                  // Fetch all users when search bar is clicked
+                  final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
+                  searchProvider.fetchAllUsers();
+                },
                 decoration: InputDecoration(
                   hintText: 'Search',
                   hintStyle: AppTextStyles.inputHint.copyWith(
@@ -515,6 +512,195 @@ class _ChatPageState extends State<ChatPage> {
           fontSize: 18.sp,
           fontWeight: FontWeight.w600,
           color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResults(UserSearchProvider searchProvider) {
+    if (searchProvider.isSearchingUsers) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    }
+
+    if (searchProvider.searchedUsers.isEmpty) {
+      return Center(
+        child: Text(
+          'No users found',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppDimensions.screenPaddingHorizontal,
+        vertical: AppDimensions.paddingS,
+      ),
+      itemCount: searchProvider.searchedUsers.length,
+      itemBuilder: (context, index) {
+        final user = searchProvider.searchedUsers[index];
+        return _buildUserSearchItem(user, searchProvider);
+      },
+    );
+  }
+
+  Widget _buildUserSearchItem(ChatUser user, UserSearchProvider searchProvider) {
+    return GestureDetector(
+      onTap: () async {
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        );
+
+        try {
+          // Create chat room with the selected user using UserSearchProvider
+          final room = await searchProvider.createChatRoomWithUser(user.id);
+          
+          // Close loading dialog
+          if (context.mounted) {
+            Navigator.pop(context);
+          }
+
+          if (room != null && context.mounted) {
+            // Navigate to chat detail page
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailPage(
+                  roomId: room.id,
+                  contactName: user.name ?? user.email ?? 'Unknown',
+                  contactProfileImageUrl: user.profileImage,
+                ),
+              ),
+            );
+            
+            // Clear search and refresh chat rooms
+            _searchController.clear();
+            searchProvider.clearSearch();
+            
+            // Refresh chat rooms list using ChatProvider
+            final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+            chatProvider.fetchChatRooms();
+          } else if (context.mounted) {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(searchProvider.createRoomError ?? 'Failed to create chat room. Please try again.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (e) {
+          // Close loading dialog if still open
+          if (context.mounted) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: AppDimensions.paddingS),
+        padding: EdgeInsets.all(AppDimensions.paddingM),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: AppDimensions.shadowBlurRadius,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Profile Picture
+            Container(
+              width: 56.w,
+              height: 56.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+              ),
+              child: user.profileImage != null && user.profileImage!.isNotEmpty
+                  ? ClipOval(
+                      child: Image.network(
+                        user.profileImage!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildDefaultAvatar(user.name ?? user.email ?? '?');
+                        },
+                      ),
+                    )
+                  : _buildDefaultAvatar(user.name ?? user.email ?? '?'),
+            ),
+
+            SizedBox(width: AppDimensions.paddingM),
+
+            // User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name ?? user.email ?? 'Unknown',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (user.email != null && user.name != null) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      user.email!,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        fontSize: 12.sp,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (user.role != null) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      user.role!,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        fontSize: 11.sp,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Arrow Icon
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16.w,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ],
         ),
       ),
     );

@@ -46,6 +46,6 @@ class AppUrl{
   static const String sendMessage = '$baseUrl/chat/api/messages/send/';
   static const String getChatRooms = '$baseUrl/chat/api/rooms/';
   static const String getRoomMessages = '$baseUrl/chat/api/rooms/messages/';
-  static const String createChatRoom = '$baseUrl/chat/api/rooms/';
+  static const String createChatRoom = '$baseUrl/chat/api/rooms/create/';
   static const String searchUsers = '$baseUrl/chat/api/users/search/';
 }

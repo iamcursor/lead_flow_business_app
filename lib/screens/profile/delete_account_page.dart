@@ -42,7 +42,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                           IconButton(
                             icon: Icon(
                               Icons.arrow_back,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.primary,
                               size: AppDimensions.iconM,
                             ),
                             onPressed: () => Navigator.pop(context),

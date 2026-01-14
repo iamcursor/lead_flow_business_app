@@ -15,6 +15,7 @@ class BookingModel {
   final String? estimatedDuration; // e.g., "1.5 - 2 hrs"
   final String? paymentType; // e.g., "UPI/Wallet/COD"
   final String? customerPhone;
+  final String? customerId; // Customer user ID for chat
   // Completed booking fields
   final List<String>? completedServiceNotes; // List of completed tasks
   final List<Map<String, dynamic>>? charges; // List of charge items {label, amount}
@@ -39,6 +40,7 @@ class BookingModel {
     this.estimatedDuration,
     this.paymentType,
     this.customerPhone,
+    this.customerId,
     this.completedServiceNotes,
     this.charges,
     this.totalCharges,
@@ -146,6 +148,12 @@ class BookingModel {
                     (json['customer'] is Map<String, dynamic>
                         ? getNestedString(json['customer'], 'phone')
                         : null),
+      customerId: json['customer_id']?.toString() ?? 
+                 (json['customer'] is String
+                     ? json['customer']?.toString()
+                     : (json['customer'] is Map<String, dynamic>
+                         ? getNestedString(json['customer'], 'id')
+                         : null)),
       completedServiceNotes: json['completed_service_notes'] != null
           ? (json['completed_service_notes'] is List
               ? List<String>.from((json['completed_service_notes'] as List).map((e) => e.toString()))
@@ -191,6 +199,7 @@ class BookingModel {
       'estimated_duration': estimatedDuration,
       'payment_type': paymentType,
       'customer_phone': customerPhone,
+      'customer_id': customerId,
       'completed_service_notes': completedServiceNotes,
       'charges': charges,
       'total_charges': totalCharges,

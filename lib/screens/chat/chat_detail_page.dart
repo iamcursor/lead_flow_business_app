@@ -209,7 +209,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 IconButton(
                   icon: Icon(
                     Icons.arrow_back,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onSurface,
                     size: AppDimensions.iconM,
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -252,36 +254,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                ),
-
-                // Phone Icon
-                IconButton(
-                  icon: Icon(
-                    Icons.phone,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: AppDimensions.iconM,
-                  ),
-                  onPressed: () {
-                    // TODO: Make phone call
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-
-                SizedBox(width: AppDimensions.paddingXS),
-
-                // More Options Icon
-                IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: AppDimensions.iconM,
-                  ),
-                  onPressed: () {
-                    // TODO: Show more options
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
@@ -623,7 +595,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       child: Text(
         initials,
         style: AppTextStyles.titleMedium.copyWith(
-          fontSize: 18.sp,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w600,
           color: Theme.of(context).colorScheme.primary,
         ),
