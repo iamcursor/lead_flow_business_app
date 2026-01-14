@@ -19,6 +19,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -29,14 +30,22 @@ class _ChatPageState extends State<ChatPage> {
       provider.startChatRoomsTimestampUpdateTimer();
     });
     _searchController.addListener(() {
-      final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
-      searchProvider.searchUsers(_searchController.text);
+      // Search only users from existing chat rooms (chats you've already had)
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      chatProvider.setSearchQuery(_searchController.text);
+      
+      // Clear user search results when typing in search bar (so it doesn't show all users)
+      if (_searchController.text.trim().isNotEmpty) {
+        final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
+        searchProvider.clearSearch();
+      }
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -64,10 +73,15 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               child: Consumer2<ChatProvider, UserSearchProvider>(
                 builder: (context, chatProvider, searchProvider, child) {
-                  // Show search results if there are any searched users or if search is active
-                  if (searchProvider.searchedUsers.isNotEmpty || searchProvider.isSearchingUsers) {
-                    return _buildSearchResults(searchProvider);
+                  // Show user search results only when filter button was clicked (search bar is empty)
+                  // When search bar has text, show filtered chat list (users you've already chatted with)
+                  if (_searchController.text.trim().isEmpty) {
+                    // Search bar is empty, show user search results if filter button was clicked
+                    if (searchProvider.searchedUsers.isNotEmpty || searchProvider.isSearchingUsers) {
+                      return _buildSearchResults(searchProvider);
+                    }
                   }
+                  // Show filtered chat list (users you've already chatted with) when searching
                   return _buildChatList(chatProvider);
                 },
               ),
@@ -129,11 +143,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
               child: TextField(
                 controller: _searchController,
-                onTap: () {
-                  // Fetch all users when search bar is clicked
-                  final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
-                  searchProvider.fetchAllUsers();
-                },
+                focusNode: _searchFocusNode,
                 decoration: InputDecoration(
                   hintText: 'Search',
                   hintStyle: AppTextStyles.inputHint.copyWith(
@@ -179,7 +189,9 @@ class _ChatPageState extends State<ChatPage> {
                 size: AppDimensions.iconM,
               ),
               onPressed: () {
-                // TODO: Show filter/sort options
+                // Hit search API when filter button is clicked
+                final searchProvider = Provider.of<UserSearchProvider>(context, listen: false);
+                searchProvider.fetchAllUsers();
               },
               padding: EdgeInsets.zero,
             ),
@@ -379,6 +391,9 @@ class _ChatPageState extends State<ChatPage> {
         );
         // Refresh chat rooms list when returning to update unread counts
         provider.fetchChatRooms();
+        
+        // Unfocus search field to prevent keyboard from opening
+        _searchFocusNode.unfocus();
       },
       child: Container(
         margin: EdgeInsets.only(bottom: AppDimensions.paddingS),
@@ -574,6 +589,10 @@ class _ChatPageState extends State<ChatPage> {
           }
 
           if (room != null && context.mounted) {
+            // Clear search before navigating
+            _searchController.clear();
+            searchProvider.clearSearch();
+            
             // Navigate to chat detail page
             await Navigator.push(
               context,
@@ -586,13 +605,17 @@ class _ChatPageState extends State<ChatPage> {
               ),
             );
             
-            // Clear search and refresh chat rooms
-            _searchController.clear();
-            searchProvider.clearSearch();
-            
-            // Refresh chat rooms list using ChatProvider
-            final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-            chatProvider.fetchChatRooms();
+            // Clear search again when returning from chat detail page
+            if (context.mounted) {
+              searchProvider.clearSearch();
+              
+              // Unfocus search field to prevent keyboard from opening
+              _searchFocusNode.unfocus();
+              
+              // Refresh chat rooms list using ChatProvider
+              final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+              chatProvider.fetchChatRooms();
+            }
           } else if (context.mounted) {
             // Show error message
             ScaffoldMessenger.of(context).showSnackBar(

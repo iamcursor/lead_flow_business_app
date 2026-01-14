@@ -63,12 +63,11 @@ class ChatProvider with ChangeNotifier {
   List<ChatModel> get filteredChats {
     var filtered = _allChats;
     
-    // Apply search filter
+    // Apply search filter - search only by user name
     if (_searchQuery.isNotEmpty) {
-      final searchLower = _searchQuery.toLowerCase();
+      final searchLower = _searchQuery.toLowerCase().trim();
       filtered = filtered.where((chat) {
-        return chat.name.toLowerCase().contains(searchLower) ||
-               chat.lastMessage.toLowerCase().contains(searchLower);
+        return chat.name.toLowerCase().contains(searchLower);
       }).toList();
     }
     

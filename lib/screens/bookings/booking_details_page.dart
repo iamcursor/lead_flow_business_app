@@ -25,21 +25,33 @@ class BookingDetailsPage extends StatefulWidget {
 }
 
 class _BookingDetailsPageState extends State<BookingDetailsPage> {
+  BookingProvider? _bookingProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Store provider reference when dependencies are available
+    _bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+  }
+
   @override
   void initState() {
     super.initState();
     // Clear booking details when page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-      bookingProvider.clearBookingDetails();
+      if (mounted && _bookingProvider != null) {
+        _bookingProvider!.clearBookingDetails();
+      }
     });
   }
 
   @override
   void dispose() {
     // Clear booking details when page is disposed
-    final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-    bookingProvider.clearBookingDetails();
+    // Use stored reference instead of accessing context
+    if (_bookingProvider != null) {
+      _bookingProvider!.clearBookingDetails();
+    }
     super.dispose();
   }
 
