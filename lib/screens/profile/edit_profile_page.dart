@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'dart:io';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
 import '../../providers/business_owner_provider.dart';
+import '../../models/business_owner_profile/business_profile.dart';
+import 'edit_profile_step2_page.dart';
 
 /// Edit Profile Page
 class EditProfilePage extends StatefulWidget {
@@ -19,8 +22,11 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
+  final _dateOfBirthController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+  final _alternatePhoneController = TextEditingController();
   
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final List<String> _cityOptions = [
     'Lahore',
     'Karachi',
@@ -94,6 +100,56 @@ class _EditProfilePageState extends State<EditProfilePage> {
         provider.setSelectedCity(city);
       }
       
+      // Get gender from API response
+      final gender = businessProfile?['gender']?.toString();
+      if (gender != null && gender.isNotEmpty) {
+        // Capitalize first letter to match dropdown options
+        final capitalizedGender = gender.substring(0, 1).toUpperCase() + gender.substring(1).toLowerCase();
+        if (_genderOptions.contains(capitalizedGender)) {
+          provider.setSelectedGender(capitalizedGender);
+        } else {
+          // If exact match not found, try to match case-insensitively
+          final lowerGender = gender.toLowerCase();
+          for (var option in _genderOptions) {
+            if (option.toLowerCase() == lowerGender) {
+              provider.setSelectedGender(option);
+              break;
+            }
+          }
+        }
+      } else if (provider.selectedGender != null && provider.selectedGender!.isNotEmpty) {
+        // Use existing provider value if API doesn't have it
+        // (already set, no need to set again)
+      }
+      
+      // Get date of birth from API response
+      final dateOfBirth = businessProfile?['date_of_birth']?.toString();
+      if (dateOfBirth != null && dateOfBirth.isNotEmpty) {
+        try {
+          // Try parsing ISO format (YYYY-MM-DD)
+          final date = DateTime.parse(dateOfBirth);
+          provider.setSelectedDate(date);
+          _dateOfBirthController.text = _formatDate(date);
+        } catch (e) {
+          // If parsing fails, try other formats or use provider value
+          if (provider.selectedDate != null) {
+            _dateOfBirthController.text = _formatDate(provider.selectedDate);
+          }
+        }
+      } else if (provider.selectedDate != null) {
+        // Use existing provider value if API doesn't have it
+        _dateOfBirthController.text = _formatDate(provider.selectedDate);
+      }
+      
+      // Get alternate phone from API response
+      final alternatePhone = businessProfile?['alternate_phone']?.toString() ?? 
+                             provider.alternatePhone ?? 
+                             '';
+      if (alternatePhone.isNotEmpty) {
+        _alternatePhoneController.text = alternatePhone;
+        provider.setAlternatePhone(alternatePhone);
+      }
+      
       // Pre-populate fields with API response values
       _usernameController.text = userName;
       _phoneNumberController.text = phone;
@@ -109,10 +165,53 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void dispose() {
     _usernameController.dispose();
-
+    _dateOfBirthController.dispose();
     _phoneNumberController.dispose();
+    _alternatePhoneController.dispose();
     _selectedImageNotifier.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: provider.selectedDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.textOnPrimary,
+              surface: AppColors.surface,
+              onSurface: AppColors.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != provider.selectedDate) {
+      provider.setSelectedDate(picked);
+      _dateOfBirthController.text = _formatDate(picked);
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
+
+  String _formatDateOfBirth(DateTime? date) {
+    if (date == null) return '';
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String _formatGender(String? gender) {
+    if (gender == null || gender.isEmpty) return '';
+    return gender.toLowerCase();
   }
 
   Future<void> _pickImage() async {
@@ -143,44 +242,105 @@ class _EditProfilePageState extends State<EditProfilePage> {
       FocusScope.of(context).unfocus();
       
       final provider = Provider.of<BusinessOwnerProvider>(context, listen: false);
-      
-      // Get form values
-      final name = _usernameController.text.trim();
 
-      final phone = _phoneNumberController.text.trim();
-      final serviceCategory = provider.selectedServiceCategory;
-      final city = provider.selectedCity;
-      
-      // Call API to update profile
-      final success = await provider.updateProfile(
-        name: name,
-        phone: phone,
-        serviceCategory: serviceCategory,
-        city: city,
-        recentPhoto: _selectedImageNotifier.value,
-        context: context,
-      );
-      
-      if (!mounted) return;
-      
-      if (success) {
-        // Clear selected image so it shows the updated network image
-        _selectedImageNotifier.value = null;
+      if (provider.isLoading) return;
+
+      try {
+        // Get existing business profile data first
+        final apiResponse = provider.response;
+        Map<String, dynamic>? existingProfileData;
+        if (apiResponse != null) {
+          if (apiResponse['user'] != null) {
+            final user = apiResponse['user'] as Map<String, dynamic>?;
+            if (user != null && user['business_owner_profile'] != null) {
+              existingProfileData = user['business_owner_profile'] as Map<String, dynamic>?;
+            }
+          } else if (apiResponse['id'] != null || apiResponse['business_owner_profile'] != null) {
+            existingProfileData = apiResponse;
+          }
+        }
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          ),
+        // Get form values
+        final name = _usernameController.text.trim();
+        final phone = _phoneNumberController.text.trim();
+        final alternatePhone = _alternatePhoneController.text.trim();
+        final serviceCategory = provider.selectedServiceCategory;
+        final city = provider.selectedCity;
+        
+        // Create BusinessProfileModel with all fields
+        final businessProfile = BusinessProfileModel(
+          gender: _formatGender(provider.selectedGender),
+          dateOfBirth: _formatDateOfBirth(provider.selectedDate),
+          alternatePhone: alternatePhone,
+          businessName: existingProfileData?['business_name']?.toString() ?? '',
+          tagline: existingProfileData?['tagline']?.toString() ?? '',
+          description: existingProfileData?['description']?.toString() ?? '',
+          yearsOfExperience: existingProfileData?['years_of_experience'] ?? 0,
+          primaryServiceCategory: serviceCategory ?? '',
+          primaryServiceCategoryId: provider.selectedServiceCategoryId ?? '',
+          serviceCategories: existingProfileData?['service_categories']?.toString() ?? '',
+          serviceCategoryIds: existingProfileData?['service_category_ids']?.toString() ?? '',
+          servicesOffered: existingProfileData?['services_offered']?.toString() ?? '',
+          addressLine: existingProfileData?['address_line']?.toString() ?? '',
+          city: city ?? '',
+          state: existingProfileData?['state']?.toString() ?? '',
+          postalCode: existingProfileData?['postal_code']?.toString() ?? '',
+          latitude: existingProfileData?['latitude']?.toString() ?? '',
+          longitude: existingProfileData?['longitude']?.toString() ?? '',
+          website: existingProfileData?['website']?.toString() ?? '',
+          businessHours: existingProfileData?['business_hours']?.toString() ?? '',
+          maxLeadDistanceMiles: existingProfileData?['max_lead_distance_miles'] ?? (provider.serviceRadius / 1.60934).round(),
+          autoRespondEnabled: existingProfileData?['auto_respond_enabled'] ?? false,
+          autoRespondMessage: existingProfileData?['auto_respond_message']?.toString() ?? '',
+          subscriptionTier: existingProfileData?['subscription_tier']?.toString() ?? 'basic',
+          availabilityStatus: existingProfileData?['availability_status']?.toString() ?? '',
+          logo: existingProfileData?['logo']?.toString() ?? '',
+          gallery: existingProfileData?['gallery']?.toString() ?? '',
+          idProofType: existingProfileData?['id_proof_type']?.toString() ?? '',
+          idProofFile: existingProfileData?['id_proof_file']?.toString() ?? '',
+          recentPhoto: existingProfileData?['recent_photo']?.toString() ?? '',
+          baseServiceRate: existingProfileData?['base_service_rate']?.toString() ?? '',
         );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile. Please try again.'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+
+        // Update business profile with files
+        final success = await provider.updateBusinessProfileWithFiles(
+          businessProfile,
+          name: name,
+          phone: phone,
+          idProofFile: null,
+          recentPhoto: _selectedImageNotifier.value,
+          logoFile: null,
+          context: context,
         );
+        
+        if (!mounted) return;
+        
+        if (success) {
+          // Clear selected image so it shows the updated network image
+          _selectedImageNotifier.value = null;
+          
+          // Navigate to Edit Profile Step 2
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EditProfileStep2Page()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to update profile. Please try again.'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
       }
     }
   }
@@ -198,309 +358,265 @@ class _EditProfilePageState extends State<EditProfilePage> {
             }
           },
           child: Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: Stack(
             children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Blue Header Section
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // BLUE HEADER BACKGROUND
-                        Container(
-                          width: double.infinity,
-                          height: 210,
-                          padding: EdgeInsets.only(
-                            bottom: AppDimensions.verticalSpaceXL,
-                            left: AppDimensions.screenPaddingHorizontal,
-                            right: AppDimensions.screenPaddingHorizontal,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                onPressed: () =>  Navigator.pop(context),
-                                icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onPrimary),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                              SizedBox(width: AppDimensions.paddingS),
-                              Expanded(
-                                child: Text(
-                                  'Edit Profile',
-                                  style: AppTextStyles.appBarTitle.copyWith(
-                                    color: Theme.of(context).colorScheme.onPrimary,
-                                    fontSize: 20.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              SizedBox(width: AppDimensions.paddingM + 24.w),
-                            ],
-                          ),
-                        ),
-
-                        // ⭐ CENTER AVATAR OVERLAPPING BOTTOM (THE IMPORTANT PART)
-                        Positioned(
-                          bottom: -60, // 👈 half of avatar height to overlap
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: _pickImage,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 120.w,
-                                    height: 120.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Theme.of(context).colorScheme.surfaceVariant,
-                                      border: Border.all(
-                                        color: Theme.of(context).colorScheme.onPrimary,
-                                        width: 4,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: ValueListenableBuilder<File?>(
-                                      valueListenable: _selectedImageNotifier,
-                                      builder: (context, selectedImage, child) {
-                                        if (selectedImage != null) {
-                                          return ClipOval(
-                                            child: Image.file(selectedImage, fit: BoxFit.cover),
-                                          );
-                                        }
-                                        
-                                        // Get profile image from API response (profile page data)
-                                        final apiResponse = provider.response;
-                                        Map<String, dynamic>? user;
-                                        Map<String, dynamic>? businessProfile;
-                                        
-                                        if (apiResponse != null) {
-                                          // Check if API returned user object
-                                          if (apiResponse['user'] != null) {
-                                            user = apiResponse['user'] as Map<String, dynamic>?;
-                                            if (user != null && user['business_owner_profile'] != null) {
-                                              businessProfile = user['business_owner_profile'] as Map<String, dynamic>?;
-                                            }
-                                          } else if (apiResponse['id'] != null || apiResponse['business_owner_profile'] != null) {
-                                            // If API returns profile directly (not nested in user)
-                                            businessProfile = apiResponse;
-                                          }
-                                        }
-                                        
-                                        final profileImageUrl = businessProfile?['recent_photo']?.toString();
-                                        
-                                        if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
-                                          return ClipOval(
-                                            child: Image.network(
-                                              profileImageUrl,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Icon(Icons.person, size: 60.w, color: Theme.of(context).colorScheme.onSurfaceVariant);
-                                              },
-                                              loadingBuilder: (context, child, loadingProgress) {
-                                                if (loadingProgress == null) return child;
-                                                return Center(
-                                                  child: CircularProgressIndicator(
-                                                    value: loadingProgress.expectedTotalBytes != null
-                                                        ? loadingProgress.cumulativeBytesLoaded /
-                                                            loadingProgress.expectedTotalBytes!
-                                                        : null,
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        } else if (provider.photoPath != null && provider.photoPath!.isNotEmpty) {
-                                          return ClipOval(
-                                            child: Image.asset(provider.photoPath!, fit: BoxFit.cover),
-                                          );
-                                        } else {
-                                          return Icon(Icons.person, size: 60.w, color: Theme.of(context).colorScheme.onSurfaceVariant);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 8,
-                                    right: 4,
-                                    child: Container(
-                                      width: 24.w,
-                                      height: 24.w,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Theme.of(context).colorScheme.surface,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons.camera_alt,
-                                        size: 12.w,
-                                        color: Theme.of(context).colorScheme.onPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Form Section
-                    Padding(
-                      padding: EdgeInsets.all(AppDimensions.screenPaddingHorizontal),
+              SafeArea(
+            child: Column(
+              children: [
+                // Main Content
+                Expanded(
+                  child: Container(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimensions.screenPaddingHorizontal,
+                        vertical: AppDimensions.screenPaddingVertical,
+                      ),
                       child: Form(
                         key: _formKey,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: AppDimensions.verticalSpaceXL),
+                            SizedBox(height: AppDimensions.verticalSpaceS),
                             
-                            // Username Field
+                            // Title
+                            Center(
+                              child: Text(
+                                'Update your Profile',
+                                style: AppTextStyles.appBarTitle.copyWith(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: AppDimensions.verticalSpaceS),
+                            
+                            // Subtitle
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppDimensions.paddingM,
+                                ),
+                                child: Text(
+                                  'Help customer know you better and get more bookings.',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontSize: 14.sp,
+                                    color: Theme.of(context).colorScheme.onBackground,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: AppDimensions.verticalSpaceL),
+                            
+                            // Personal Information Section
                             Text(
-                              'Username',
-                              style: AppTextStyles.labelLarge.copyWith(
+                              'Personal Information',
+                              style: AppTextStyles.titleLarge.copyWith(
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w700,
                                 color: Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // Full Name Field
+                            Text('Full Name', style: TextStyle(
+                              fontSize: 14.w,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onBackground,
+                            )),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             TextFormField(
                               controller: _usernameController,
-                              decoration: InputDecoration(
-                                hintText: 'Enter your username',
-                                hintStyle: AppTextStyles.inputHint,
-                              ),
-                              style: AppTextStyles.inputText.copyWith(
+                              keyboardType: TextInputType.text,
+                              style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
+                              decoration: const InputDecoration(hintText: 'Your full name'),
                               validator: (value) {
                                 if (value?.isEmpty ?? true) {
-                                  return 'Please enter your username';
+                                  return 'Please enter your name';
                                 }
                                 return null;
                               },
                             ),
-                            
-
-                            
-                            // Email Field
-
-
-                            
-                            SizedBox(height: AppDimensions.verticalSpaceL),
-                            
-                            // Phone Number Field
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // Gender Field
                             Text(
-                              'Phone Number',
-                              style: AppTextStyles.labelLarge.copyWith(
-                                color: Theme.of(context).colorScheme.onBackground,
+                              'Gender',
+                                style: TextStyle(
+                                  fontSize: 14.w,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                )
+                            ),
+                            SizedBox(height: AppDimensions.verticalSpaceS),
+                            DropdownButtonFormField<String>(
+                              initialValue: provider.selectedGender,
+                              decoration: const InputDecoration(hintText: 'Select your gender'),
+                              style: AppTextStyles.inputText.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
+                              dropdownColor: Theme.of(context).colorScheme.surface,
+                              items: _genderOptions.map((String gender) {
+                                return DropdownMenuItem<String>(
+                                  value: gender,
+                                  child: Text(
+                                    gender,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                provider.setSelectedGender(newValue);
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select your gender';
+                                }
+                                return null;
+                              },
+                            ),
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // Date of Birth Field
+                            Text(
+                              'Date of Birth',
+                                style: TextStyle(
+                                  fontSize: 14.w,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                )
+                            ),
+                            SizedBox(height: AppDimensions.verticalSpaceS),
+                            TextFormField(
+                              controller: _dateOfBirthController,
+                              readOnly: true,
+                              onTap: () {
+                                _selectDate(context);
+                              },
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Select your date of birth',
+                                suffixIcon: Icon(
+                                  Icons.calendar_today,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value?.isEmpty ?? true || provider.selectedDate == null) {
+                                  return 'Please select your date of birth';
+                                }
+                                return null;
+                              },
+                            ),
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // Mobile Number Field
+                            Text(
+                              'Mobile Number',
+                                style: TextStyle(
+                                  fontSize: 14.w,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                )
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             TextFormField(
                               controller: _phoneNumberController,
                               keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                hintText: 'Enter your phone number',
-                                hintStyle: AppTextStyles.inputHint,
-                              ),
-                              style: AppTextStyles.inputText.copyWith(
+                              maxLength: 11,
+                              style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              decoration: const InputDecoration(
+                                hintText: 'Your phone no',
+                                counterText: '', // Hide character counter
                               ),
                               validator: (value) {
                                 if (value?.isEmpty ?? true) {
-                                  return 'Please enter your phone number';
+                                  return 'Please enter your mobile number';
+                                }
+                                if (value != null && value.length > 11) {
+                                  return 'Phone number must not be longer than 11 digits';
                                 }
                                 return null;
                               },
+                              onChanged: (value) {
+                                provider.setMobileNumber(value.trim().isEmpty ? null : value.trim());
+                              },
                             ),
-                            
-                            SizedBox(height: AppDimensions.verticalSpaceL),
-                            
-                            // Service Dropdown
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // Alternate Phone Number Field
                             Text(
-                              'Service',
-                              style: AppTextStyles.labelLarge.copyWith(
-                                color: Theme.of(context).colorScheme.onBackground,
-                              ),
+                              'Alternate Phone Number',
+                                style: TextStyle(
+                                  fontSize: 14.w,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                )
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
-                            provider.isLoadingCategories
-                                ? const Center(child: CircularProgressIndicator())
-                                : DropdownButtonFormField<String>(
-                                    initialValue: provider.selectedServiceCategory,
-                                    style: AppTextStyles.inputText.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Select service',
-                                      hintStyle: AppTextStyles.inputHint,
-                                      suffixIcon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    items: provider.serviceCategories.map((category) {
-                                      return DropdownMenuItem<String>(
-                                        value: category.name,
-                                        child: Text(
-                                          category.name,
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (String? newValue) {
-                                      provider.setSelectedServiceCategory(newValue);
-                                    },
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please select a service';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                            
-                            SizedBox(height: AppDimensions.verticalSpaceL),
-                            
-                            // Location Dropdown
-                            Text(
-                              'Location',
-                              style: AppTextStyles.labelLarge.copyWith(
-                                color: Theme.of(context).colorScheme.onBackground,
+                            TextFormField(
+                              controller: _alternatePhoneController,
+                              keyboardType: TextInputType.phone,
+                              maxLength: 11,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
+                              decoration: const InputDecoration(
+                                hintText: 'Your phone no',
+                                counterText: '', // Hide character counter
+                              ),
+                              validator: (value) {
+                                if (value?.isEmpty ?? true) {
+                                  return 'Please enter alternate phone number';
+                                }
+                                if (value != null && value.length > 11) {
+                                  return 'Phone number must not be longer than 11 digits';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                provider.setAlternatePhone(value.trim().isEmpty ? null : value.trim());
+                              },
+                            ),
+                          
+                          SizedBox(height: AppDimensions.verticalSpaceS),
+                          
+                            // City / Town Field
+                            Text(
+                              'City / Town',
+                                style: TextStyle(
+                                  fontSize: 14.w,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                )
                             ),
                             SizedBox(height: AppDimensions.verticalSpaceS),
                             DropdownButtonFormField<String>(
                               initialValue: provider.selectedCity,
+                              decoration: const InputDecoration(hintText: 'Your city'),
                               style: AppTextStyles.inputText.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
-                              decoration: InputDecoration(
-                                hintText: 'Select location',
-                                hintStyle: AppTextStyles.inputHint,
-                                suffixIcon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
+                              dropdownColor: Theme.of(context).colorScheme.surface,
                               items: _cityOptions.map((String city) {
                                 final displayText = city == 'Saket' 
                                     ? 'Saket'
@@ -520,68 +636,73 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please select a location';
+                                  return 'Please select your city';
                                 }
                                 return null;
                               },
                             ),
                             
-                            SizedBox(height: AppDimensions.verticalSpaceXL),
-                            
-                            // Update Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.primary,
-                                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: AppDimensions.paddingM,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppDimensions.buttonRadius,
-                                    ),
-                                  ),
-                                ),
-                                onPressed: provider.isLoading ? null : _handleUpdate,
-                                child: Text(
-                                  'Update',
-                                  style: AppTextStyles.buttonLarge,
-                                ),
-                              ),
-                            ),
-                            
+                            // Bottom padding for scroll
                             SizedBox(height: AppDimensions.verticalSpaceXL),
                           ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              
-              // Loader Overlay
-              if (provider.isLoading)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: Center(
-                    child: SizedBox(
-                      width: 24.w,
-                      height: 24.w,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.primary,
+            
+            // Update Button
+            Container(
+              padding: EdgeInsets.all(AppDimensions.screenPaddingHorizontal),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: AppDimensions.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: provider.isLoading ? null : _handleUpdate,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.buttonRadius,
                         ),
-                        strokeWidth: 2,
                       ),
+                    ),
+                    child: Text(
+                      'Next',
+                      style: AppTextStyles.buttonLarge
                     ),
                   ),
                 ),
-            ],
-          ),
-          )
-        );
+              ),
+            ),
+              ],
+            ),
+            ),
+              
+            // Centered Loader Overlay
+            if (provider.isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: SizedBox(
+                    width: 24.w,
+                    height: 24.w,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+          );
+
       },
     );
   }

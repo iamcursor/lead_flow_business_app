@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/business_owner_provider.dart';
+import '../../models/service_category/service_category_model.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
@@ -67,10 +68,71 @@ class _ProfilePageState extends State<ProfilePage> {
         // Get profile image
         final profileImageUrl = businessProfile?['recent_photo']?.toString();
         
-        // Get service category
-        final serviceCategory = businessProfile?['primary_service_category']?.toString() ?? 
-                               provider.selectedServiceCategory ?? 
-                               'Electrician';
+        // Get service category - convert ID/slug to formatted name
+        String serviceCategory = 'Electrician'; // Default
+        final serviceCategoryId = businessProfile?['primary_service_category']?.toString() ?? 
+                                 provider.selectedServiceCategory;
+        
+        if (serviceCategoryId != null && serviceCategoryId.isNotEmpty) {
+          // Try to find the category name from the service categories list
+          if (provider.serviceCategories.isNotEmpty) {
+            try {
+              final category = provider.serviceCategories.firstWhere(
+                (cat) => cat.slug.toLowerCase() == serviceCategoryId.toLowerCase() || 
+                        cat.id == serviceCategoryId || 
+                        cat.name.toLowerCase() == serviceCategoryId.toLowerCase(),
+                orElse: () => ServiceCategoryModel(
+                  id: '',
+                  name: '',
+                  slug: '',
+                  description: '',
+                  icon: '',
+                  image: '',
+                  isActive: true,
+                  displayOrder: 0,
+                  subCategoriesCount: 0,
+                  createdAt: '',
+                  updatedAt: '',
+                ),
+              );
+              if (category.name.isNotEmpty) {
+                serviceCategory = category.name;
+              } else {
+                // Format the ID/slug to a readable name (capitalize first letter)
+                serviceCategory = serviceCategoryId
+                    .split('_')
+                    .map((word) => word.isEmpty 
+                        ? '' 
+                        : word[0].toUpperCase() + word.substring(1).toLowerCase())
+                    .join(' ');
+              }
+            } catch (e) {
+              // If lookup fails, format the ID/slug to a readable name
+              serviceCategory = serviceCategoryId
+                  .split('_')
+                  .map((word) => word.isEmpty 
+                      ? '' 
+                      : word[0].toUpperCase() + word.substring(1).toLowerCase())
+                  .join(' ');
+            }
+          } else {
+            // If categories not loaded, format the ID/slug to a readable name
+            serviceCategory = serviceCategoryId
+                .split('_')
+                .map((word) => word.isEmpty 
+                    ? '' 
+                    : word[0].toUpperCase() + word.substring(1).toLowerCase())
+                .join(' ');
+          }
+        } else if (provider.selectedServiceCategory != null && provider.selectedServiceCategory!.isNotEmpty) {
+          // Fallback to provider's selected category
+          serviceCategory = provider.selectedServiceCategory!
+              .split('_')
+              .map((word) => word.isEmpty 
+                  ? '' 
+                  : word[0].toUpperCase() + word.substring(1).toLowerCase())
+              .join(' ');
+        }
         
         // Get location
         final city = businessProfile?['city']?.toString();
@@ -78,6 +140,21 @@ class _ProfilePageState extends State<ProfilePage> {
         final locationText = city != null && city.isNotEmpty
             ? (state != null && state.isNotEmpty ? '$city, $state' : city)
             : provider.selectedCity ?? 'Saket';
+        
+        // Extract rating from business profile
+        double? rating;
+        if (businessProfile != null) {
+          if (businessProfile['rating'] != null) {
+            rating = businessProfile['rating'] is String
+                ? double.tryParse(businessProfile['rating'] as String) ?? 0.0
+                : (businessProfile['rating'] as num?)?.toDouble() ?? 0.0;
+          }
+        }
+        
+        // Format rating for display
+        final ratingText = rating != null && rating > 0.0
+            ? rating.toStringAsFixed(1)
+            : null;
         
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -285,24 +362,25 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                         
                                         // Rating
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.star,
-                                              size: 18.w,
-                                              color: Theme.of(context).colorScheme.tertiary,
-                                            ),
-                                            SizedBox(width: 4.w),
-                                            Text(
-                                              '4.5 (72 Jobs)',
-                                              style: TextStyle(
-                                                fontSize: 13.sp,
-                                                fontWeight: FontWeight.w500,
-                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        if (ratingText != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.star,
+                                                size: 18.w,
+                                                color: Theme.of(context).colorScheme.tertiary,
                                               ),
-                                            ),
-                                          ],
-                                        ),
+                                              SizedBox(width: 4.w),
+                                              Text(
+                                                ratingText,
+                                                style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                       ],
                                     ),
                                   ),
