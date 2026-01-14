@@ -111,7 +111,7 @@ class BookingModel {
       bookingId: json['booking_id']?.toString() ?? json['id']?.toString() ?? '',
       customerName: json['customer_name_display']?.toString() ?? 
                    json['customer_name']?.toString() ?? 
-                   (json['customer'] is Map<String, dynamic> 
+                   (json['customer'] is Map<String, dynamic>
                        ? getNestedString(json['customer'], 'name')
                        : null) ?? '',
       serviceName: json['service_name']?.toString() ?? 
@@ -137,12 +137,9 @@ class BookingModel {
                                  ? getNestedString(json['customer'], 'profile_picture')
                                  : null),
       distance: json['distance']?.toString(),
-      serviceNotes: json['customer_notes']?.toString() ?? 
-                   json['service_notes']?.toString() ?? 
+      serviceNotes: json['service_notes']?.toString() ?? 
                    json['notes']?.toString(),
-      estimatedDuration: json['duration_hours'] != null
-          ? '${json['duration_hours']?.toString()} hrs'
-          : json['estimated_duration']?.toString(),
+      estimatedDuration: json['estimated_duration']?.toString(),
       paymentType: json['payment_type']?.toString() ?? 'UPI/Wallet/COD',
       customerPhone: json['customer_phone']?.toString() ?? 
                     (json['customer'] is Map<String, dynamic>

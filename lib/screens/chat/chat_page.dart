@@ -220,12 +220,6 @@ class _ChatPageState extends State<ChatPage> {
             isSelected: provider.selectedFilter == 'Unread',
             onTap: () => provider.setSelectedFilter('Unread'),
           ),
-          SizedBox(width: AppDimensions.paddingS),
-          _buildFilterButton(
-            label: 'Pinned',
-            isSelected: provider.selectedFilter == 'Pinned',
-            onTap: () => provider.setSelectedFilter('Pinned'),
-          ),
         ],
       ),
     );
