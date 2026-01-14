@@ -80,6 +80,20 @@ class _ChatPageState extends State<ChatPage> {
       ),
       child: Row(
         children: [
+          // Back Button
+          IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onBackground,
+              size: AppDimensions.iconM,
+            ),
+            onPressed: () => Navigator.pop(context),
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+          ),
+          
+          SizedBox(width: AppDimensions.paddingM),
+          
           // Title
           Expanded(
             child: Center(
@@ -95,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
 
           // Filter Icon
-
+          
         ],
       ),
     );
