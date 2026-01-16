@@ -8,6 +8,7 @@ import '../../providers/dashboard_provider.dart';
 import '../../models/booking/booking_model.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
+import '../../styles/app_text_styles.dart';
 import '../../widgets/explore/available_for_work_card.dart';
 import '../../widgets/explore/explore_header_widget.dart';
 import '../../widgets/explore/new_job_request_card.dart';
@@ -126,10 +127,69 @@ class ExplorePage extends StatelessWidget {
                             timeFrame: timeFrame,
                             price: priceText,
                             onAccept: () async {
+                              // Show confirmation dialog
+                              final shouldConfirm = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext dialogContext) {
+                                  return AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+                                    ),
+                                    title: Text(
+                                      'Confirm Job',
+                                      style: AppTextStyles.bodyLarge.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      'Do you want to confirm this job?',
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    actions: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(dialogContext).pop(false),
+                                            child: Text(
+                                              'No',
+                                              style: AppTextStyles.buttonMedium.copyWith(
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
+                                            ),
+                                          ),
+
+                                          TextButton(
+                                            onPressed: () => Navigator.of(dialogContext).pop(true),
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: AppColors.primary,
+                                              foregroundColor: AppColors.textOnPrimary,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Yes',
+                                              style: AppTextStyles.buttonLarge,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              // Only proceed if user clicked "Yes"
+                              if (shouldConfirm != true) {
+                                return;
+                              }
+
                               final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-                              final updatedBooking = await bookingProvider.updateBookingStatus(
+                              final updatedBooking = await bookingProvider.confirmBooking(
                                 bookingId: firstPendingBooking.bookingId,
-                                status: 'confirmed',
                               );
                               
                               if (updatedBooking != null) {

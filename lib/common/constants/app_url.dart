@@ -19,6 +19,7 @@ class AppUrl{
   // Bookings
   static const String bookings = '$baseUrl/api/bookings/';
   static const String dashboard = '$baseUrl/api/bookings/dashboard/';
+  static const String confirmBooking = '$baseUrl/api/bookings/confirm/';
   static String updateBookingStatus(String bookingId) => '$baseUrl/booking/$bookingId/update-status/';
 
   // User Profile Endpoints

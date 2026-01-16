@@ -8,12 +8,14 @@ class PaymentService {
   /// Returns the session ID and hosted checkout URL
   Future<Map<String, dynamic>?> createCheckoutSession({
     required String priceId,
+    required String plan,
     required String successUrl,
     required String cancelUrl,
   }) async {
     try {
       final requestBody = {
         'price_id': priceId,
+        'plan': plan,
         'success_url': successUrl,
         'cancel_url': cancelUrl,
       };

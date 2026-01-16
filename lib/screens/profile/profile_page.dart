@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/business_owner_provider.dart';
 import '../../models/service_category/service_category_model.dart';
+import '../../services/service_category_service.dart';
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimensions.dart';
 import '../../styles/app_text_styles.dart';
@@ -22,6 +23,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final ServiceCategoryService _categoryService = ServiceCategoryService();
+  String? _serviceCategoryName;
+  bool _isLoadingCategory = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,8 +36,52 @@ class _ProfilePageState extends State<ProfilePage> {
       // Only fetch if profile hasn't been loaded yet
       if (provider.response == null) {
         provider.fetchBusinessOwnerProfile();
+      } else {
+        // If profile is already loaded, fetch category name
+        _fetchCategoryName(provider);
       }
     });
+  }
+
+  Future<void> _fetchCategoryName(BusinessOwnerProvider provider) async {
+    final apiResponse = provider.response;
+    Map<String, dynamic>? businessProfile;
+    
+    if (apiResponse != null) {
+      if (apiResponse['user'] != null) {
+        final user = apiResponse['user'] as Map<String, dynamic>?;
+        if (user != null && user['business_owner_profile'] != null) {
+          businessProfile = user['business_owner_profile'] as Map<String, dynamic>?;
+        }
+      } else if (apiResponse['id'] != null || apiResponse['business_owner_profile'] != null) {
+        businessProfile = apiResponse;
+      }
+    }
+    
+    final serviceCategoryId = businessProfile?['primary_service_category']?.toString();
+    
+    if (serviceCategoryId != null && serviceCategoryId.isNotEmpty) {
+      setState(() {
+        _isLoadingCategory = true;
+      });
+      
+      try {
+        final category = await _categoryService.getMainCategoryById(serviceCategoryId);
+        if (mounted) {
+          setState(() {
+            _serviceCategoryName = category.name;
+            _isLoadingCategory = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoadingCategory = false;
+          });
+        }
+        // Silently fail - will use fallback
+      }
+    }
   }
 
   @override
@@ -57,6 +106,14 @@ class _ProfilePageState extends State<ProfilePage> {
             // If API returns profile directly (not nested in user)
             businessProfile = apiResponse;
           }
+          
+          // Fetch category name if we have a category ID and haven't loaded it yet
+          final serviceCategoryId = businessProfile?['primary_service_category']?.toString();
+          if (serviceCategoryId != null && serviceCategoryId.isNotEmpty && _serviceCategoryName == null && !_isLoadingCategory) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _fetchCategoryName(provider);
+            });
+          }
         }
         
         // Get user name
@@ -68,71 +125,16 @@ class _ProfilePageState extends State<ProfilePage> {
         // Get profile image
         final profileImageUrl = businessProfile?['recent_photo']?.toString();
         
-        // Get service category - convert ID/slug to formatted name
-        String serviceCategory = 'Electrician'; // Default
-        final serviceCategoryId = businessProfile?['primary_service_category']?.toString() ?? 
-                                 provider.selectedServiceCategory;
-        
-        if (serviceCategoryId != null && serviceCategoryId.isNotEmpty) {
-          // Try to find the category name from the service categories list
-          if (provider.serviceCategories.isNotEmpty) {
-            try {
-              final category = provider.serviceCategories.firstWhere(
-                (cat) => cat.slug.toLowerCase() == serviceCategoryId.toLowerCase() || 
-                        cat.id == serviceCategoryId || 
-                        cat.name.toLowerCase() == serviceCategoryId.toLowerCase(),
-                orElse: () => ServiceCategoryModel(
-                  id: '',
-                  name: '',
-                  slug: '',
-                  description: '',
-                  icon: '',
-                  image: '',
-                  isActive: true,
-                  displayOrder: 0,
-                  subCategoriesCount: 0,
-                  createdAt: '',
-                  updatedAt: '',
-                ),
-              );
-              if (category.name.isNotEmpty) {
-                serviceCategory = category.name;
-              } else {
-                // Format the ID/slug to a readable name (capitalize first letter)
-                serviceCategory = serviceCategoryId
-                    .split('_')
-                    .map((word) => word.isEmpty 
-                        ? '' 
-                        : word[0].toUpperCase() + word.substring(1).toLowerCase())
-                    .join(' ');
-              }
-            } catch (e) {
-              // If lookup fails, format the ID/slug to a readable name
-              serviceCategory = serviceCategoryId
-                  .split('_')
-                  .map((word) => word.isEmpty 
-                      ? '' 
-                      : word[0].toUpperCase() + word.substring(1).toLowerCase())
-                  .join(' ');
-            }
-          } else {
-            // If categories not loaded, format the ID/slug to a readable name
-            serviceCategory = serviceCategoryId
-                .split('_')
-                .map((word) => word.isEmpty 
-                    ? '' 
-                    : word[0].toUpperCase() + word.substring(1).toLowerCase())
-                .join(' ');
-          }
-        } else if (provider.selectedServiceCategory != null && provider.selectedServiceCategory!.isNotEmpty) {
-          // Fallback to provider's selected category
-          serviceCategory = provider.selectedServiceCategory!
-              .split('_')
-              .map((word) => word.isEmpty 
-                  ? '' 
-                  : word[0].toUpperCase() + word.substring(1).toLowerCase())
-              .join(' ');
+        // Fetch category name if we have a category ID and haven't loaded it yet
+        final serviceCategoryId = businessProfile?['primary_service_category']?.toString();
+        if (serviceCategoryId != null && serviceCategoryId.isNotEmpty && _serviceCategoryName == null && !_isLoadingCategory) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _fetchCategoryName(provider);
+          });
         }
+        
+        // Use fetched category name, or fallback to default
+        String serviceCategory = _serviceCategoryName ?? 'Electrician';
         
         // Get location
         final city = businessProfile?['city']?.toString();
@@ -282,27 +284,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                   ),
                                       ),
-                                      Positioned(
-                                        bottom: 0,
-                                        right: 0,
-                                        child: Container(
-                                          width: 24.w,
-                                          height: 24.w,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Theme.of(context).colorScheme.surface,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.camera_alt,
-                                            size: 12.w,
-                                            color: Theme.of(context).colorScheme.onPrimary,
-                                          ),
-                                        ),
-                                      ),
+
                                     ],
                                   ),
                                   
@@ -470,46 +452,68 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(height: AppDimensions.verticalSpaceM),
                           
                           // Logout Button Card
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.errorContainer,
-                              borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-                            ),
-                            child: InkWell(
-                              onTap: () async {
-                                // Get auth provider and sign out properly
-                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                                await authProvider.signOut();
-                                
-                                // Navigate to login screen
-                                if (context.mounted) {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),));
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-                              child: Padding(
-                                padding: EdgeInsets.all(AppDimensions.cardPadding),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.logout,
-                                      size: 20.w,
-                                      color: Theme.of(context).colorScheme.onErrorContainer,
-                                    ),
-                                    SizedBox(width: AppDimensions.paddingS),
-                                    Text(
-                                      'Logout',
-                                      style: TextStyle(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context).colorScheme.onErrorContainer,
-                                      ),
-                                    ),
-                                  ],
+                          Builder(
+                            builder: (context) {
+                              final isLightMode = Theme.of(context).brightness == Brightness.light;
+                              // Reddish-brown color for light mode
+                              final redColor = AppColors.error; // Saddle brown
+                              // Very light purple-blue background for light mode
+                              final light = const Color(0xFFFFFFFF);
+                              
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: isLightMode 
+                                      ? light
+                                      : Theme.of(context).colorScheme.errorContainer,
+                                  borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+                                  border: isLightMode
+                                      ? Border.all(
+                                          color: redColor,
+                                          width: 1,
+                                        )
+                                      : null,
                                 ),
-                              ),
-                            ),
+                                child: InkWell(
+                                  onTap: () async {
+                                    // Get auth provider and sign out properly
+                                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                    await authProvider.signOut();
+                                    
+                                    // Navigate to login screen
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),));
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(AppDimensions.cardPadding),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.logout,
+                                          size: 20.w,
+                                          color: isLightMode 
+                                              ? redColor
+                                              : Theme.of(context).colorScheme.onErrorContainer,
+                                        ),
+                                        SizedBox(width: AppDimensions.paddingS),
+                                        Text(
+                                          'Logout',
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: isLightMode 
+                                                ? redColor
+                                                : Theme.of(context).colorScheme.onErrorContainer,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           
                           // Bottom padding for scroll

@@ -21,26 +21,26 @@ class ChoosePlanPage extends StatelessWidget {
   static final List<PlanModel> _plans = [
     PlanModel(
       name: 'Starter Plan',
-      price: '\$49',
+      price: '\$29',
       period: '/ month',
       features: ['Limited leads', 'Basic profile', 'Auto-Matching'],
-      priceId: 'price_1SjgeOJRGjtftwn62vEfaFLs', // BO Starter Plan
+      priceId: 'price_1SpzUOJRGjtftwn6biQZHaVB', // BO Starter Plan
 
     ),
     PlanModel(
       name: 'Growth Plan',
-      price: '\$149',
+      price: '\$79',
       period: '/ month',
       features: ['Higher lead volume', 'Enhanced profile', 'Analytics'],
-      priceId: 'price_1SjgheJRGjtftwn6piOo5OyF', // BO Growth Plan
+      priceId: 'price_1SpzXmJRGjtftwn6uOrIzELW', // BO Growth Plan
 
     ),
     PlanModel(
       name: 'Pro Plan',
-      price: '\$399',
+      price: '\$149',
       period: '/ month',
       features: ['Unlimited leads', 'Premium placement', 'Contact automation'],
-      priceId: 'price_1SjgmJJRGjtftwn6isuPbG1R', // BO Pro Plan
+      priceId: 'price_1SpzZkJRGjtftwn6mV7DwTJr', // BO Pro Plan
 
     ),
 
@@ -75,6 +75,7 @@ class ChoosePlanPage extends StatelessWidget {
       // Call the API to create checkout session with actual Stripe price ID
       final response = await _paymentService.createCheckoutSession(
         priceId: selectedPlan.priceId,
+        plan: selectedPlanName,
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       );

@@ -589,18 +589,24 @@ class _EditProfileStep5PageState extends State<EditProfileStep5Page> {
     required String title,
     required bool isComplete,
   }) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+    // Dark blue color for icons in light mode
+    final darkBlue = const Color(0xFF1565C0);
+    // Very light background for light mode
+    final lightBackground = const Color(0xFFFAFAFA);
+    
     return Row(
       children: [
         Container(
           padding: EdgeInsets.all(AppDimensions.paddingS),
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: isLightMode ? lightBackground : Colors.black,
             borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
           ),
           child: Icon(
             icon,
             size: 20.w,
-            color: AppColors.primary,
+            color: isLightMode ? darkBlue : AppColors.primary,
           ),
         ),
         SizedBox(width: AppDimensions.paddingM),

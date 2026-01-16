@@ -365,6 +365,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               
                               // Personal Information
                               _buildStatusItem(
+                                context: context,
                                 icon: Icons.person_outline,
                                 title: 'Personal Information',
                                 isComplete: true,
@@ -374,6 +375,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               
                               // Service Details
                               _buildStatusItem(
+                                context: context,
                                 icon: Icons.shopping_bag_outlined,
                                 title: 'Service Details',
                                 isComplete: true,
@@ -383,6 +385,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               
                               // Documentations
                               _buildStatusItem(
+                                context: context,
                                 icon: Icons.calendar_today_outlined,
                                 title: 'Documentations',
                                 isComplete: true,
@@ -392,6 +395,7 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
                               
                               // Availability & Rates
                               _buildStatusItem(
+                                context: context,
                                 icon: Icons.schedule_outlined,
                                 title: 'Availability & Rates',
                                 isComplete: true,
@@ -640,22 +644,29 @@ class _CompleteProfileStep5PageState extends State<CompleteProfileStep5Page> {
   }
   
   Widget _buildStatusItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required bool isComplete,
   }) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+    // Dark blue color for icons in light mode
+    final darkBlue = const Color(0xFF1565C0);
+    // Very light background for light mode
+    final lightBackground = const Color(0xFFFAFAFA);
+    
     return Row(
       children: [
         Container(
           padding: EdgeInsets.all(AppDimensions.paddingS),
           decoration: BoxDecoration(
-            color: AppColors.backgroundSecondary,
+            color: isLightMode ? lightBackground : AppColors.backgroundSecondary,
             borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
           ),
           child: Icon(
             icon,
             size: 20.w,
-            color: AppColors.primary,
+            color: isLightMode ? darkBlue : AppColors.primary,
           ),
         ),
         SizedBox(width: AppDimensions.paddingM),

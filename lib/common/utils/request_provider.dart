@@ -8,6 +8,7 @@ import 'package:lead_flow_business/styles/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+
 import 'app_excpetions.dart';
 
 class RequestProvider {
@@ -30,67 +31,7 @@ class RequestProvider {
   //   };
   // }
 
-  /// Check if URL is a public endpoint that doesn't require authentication
-  static bool _isPublicEndpoint(String url) {
-    final publicEndpoints = [
-      '/users/login/',
-      '/users/signup/',
-      '/users/send-otp/',
-      '/users/verify-otp/',
-      '/users/google-signin/business-owner/',
-      // '/users/google-signin/',  // Add this line
-      // '/google-signin/',
-    ];
-    return publicEndpoints.any((endpoint) => url.contains(endpoint));
-  }
-
-  /// Get content type from file name extension
-  static http.MediaType? _getContentTypeFromFileName(String fileName) {
-    final extension = fileName.split('.').last.toLowerCase();
-    switch (extension) {
-      case 'jpg':
-      case 'jpeg':
-        return http.MediaType('image', 'jpeg');
-      case 'png':
-        return http.MediaType('image', 'png');
-      case 'gif':
-        return http.MediaType('image', 'gif');
-      case 'webp':
-        return http.MediaType('image', 'webp');
-      case 'pdf':
-        return http.MediaType('application', 'pdf');
-      default:
-        return null; // Let http package detect it
-    }
-  }
-
-  /// Extract user-friendly error message from exception string
-  static String _extractErrorMessage(String errorString) {
-    try {
-      // Try to parse JSON error response
-      // Error format: "invalid request {"message":"..."}"
-      final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(errorString);
-      if (jsonMatch != null) {
-        final jsonStr = jsonMatch.group(0);
-        if (jsonStr != null) {
-          final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-          if (json.containsKey('message')) {
-            return json['message'].toString();
-          } else if (json.containsKey('error')) {
-            return json['error'].toString();
-          } else if (json.containsKey('detail')) {
-            return json['detail'].toString();
-          }
-        }
-      }
-    } catch (e) {
-      // If parsing fails, return the original error
-    }
-    // Return a simplified version of the error
-    return errorString.replaceAll(RegExp(r'^[^:]+:\s*'), '').trim();
-  }
-
-  static Future<Map<String, String>> _getHeaders({String? url}) async {
+  static Future<Map<String, String>> _getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token') ?? '';
     final cookie = prefs.getString('Cookie') ?? '';
@@ -101,8 +42,8 @@ class RequestProvider {
       'User-Agent': 'MobileApp/1.0',
     };
 
-    // Only add Authorization if token is not empty AND it's not a public endpoint
-    if (token.isNotEmpty && (url == null || !_isPublicEndpoint(url))) {
+    // Only add Authorization if token is not empty
+    if (token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
 
@@ -167,43 +108,20 @@ class RequestProvider {
     try {
       return await apiCall();
     } on SocketException {
-      Utils.toastMessage(message: 'No internet connection', color: AppColors.warning);
+      Utils.toastMessage(message: 'No internet connection', color: AppColors.error);
       return null;
     } on TimeoutException {
       Utils.toastMessage(
         message: 'Request timed out. Please try again.',
-         color: AppColors.warning,
+        color: AppColors.error,
       );
       return null;
-    } on BadRequestException catch (e) {
-      debugPrint('BadRequestException: $e');
-      final errorMessage = _extractErrorMessage(e.toString());
-      Utils.toastMessage(message: errorMessage, color: AppColors.warning);
-      return null;
-    } on UnauthorizedException catch (e) {
-      debugPrint('UnauthorizedException: $e');
-      final errorMessage = _extractErrorMessage(e.toString());
-      Utils.toastMessage(message: errorMessage, color: AppColors.warning);
-      return null;
-    } on ForbiddenException catch (e) {
-      debugPrint('ForbiddenException: $e');
-      Utils.toastMessage(message: e.toString(), color: AppColors.warning);
-      return null;
-    } on NotFoundException catch (e) {
-      debugPrint('NotFoundException: $e');
-      Utils.toastMessage(message: e.toString(), color: AppColors.warning);
-      return null;
     } on FetchDataException catch (e) {
-      debugPrint('FetchDataException: $e');
-      Utils.toastMessage(message: e.toString(), color: AppColors.warning);
-      return null;
-    } on NetworkExceptions catch (e) {
-      debugPrint('NetworkExceptions: $e');
-      Utils.toastMessage(message: e.toString(), color: AppColors.warning);
+      Utils.toastMessage(message: e.toString(), color: AppColors.error);
       return null;
     } catch (e) {
       debugPrint('Unexpected error: $e');
-      Utils.toastMessage(message: 'Something went wrong: ${e.toString()}', color: AppColors.warning);
+      Utils.toastMessage(message: 'Something went wrong', color: AppColors.error);
       return null;
     }
   }
@@ -216,7 +134,7 @@ class RequestProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       final uri = Uri.parse(url).replace(queryParameters: queryParameters);
 
       debugPrint('GET → $uri');
@@ -235,19 +153,31 @@ class RequestProvider {
     dynamic body,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       final jsonBody = body is String ? body : jsonEncode(body);
 
       debugPrint('POST → $url');
-      debugPrint('Body: $jsonBody');
-      debugPrint('Headers: $headers');
 
       final response = await _client
           .post(Uri.parse(url), headers: headers, body: jsonBody)
           .timeout(_timeout);
 
       debugPrint('POST ← ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
+      
+      // Print response body on single line
+      try {
+        if (response.body.isNotEmpty) {
+          final parsed = jsonDecode(response.body);
+          final formatted = jsonEncode(parsed);
+          debugPrint('Response: $formatted');
+        } else {
+          debugPrint('Response: empty');
+        }
+      } catch (e) {
+        // If formatting fails, just print the raw response body
+        debugPrint('Response: ${response.body}');
+      }
+      
       return await _handleResponse(response);
     });
   }
@@ -258,7 +188,7 @@ class RequestProvider {
     dynamic body,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       final jsonBody = body is String ? body : jsonEncode(body);
 
       debugPrint('PUT → $url');
@@ -273,29 +203,13 @@ class RequestProvider {
     });
   }
 
-  /// DELETE Request
-  static Future<dynamic> delete({
-    required String url,
-  }) async {
-    return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
-
-      debugPrint('DELETE → $url');
-
-      final response = await _client.delete(Uri.parse(url), headers: headers).timeout(_timeout);
-      debugPrint('DELETE ← ${response.statusCode}');
-
-      return await _handleResponse(response);
-    });
-  }
-
   /// PATCH Request
   static Future<dynamic> patch({
     required String url,
     dynamic body,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       final jsonBody = body is String ? body : jsonEncode(body);
 
       debugPrint('PATCH → $url');
@@ -310,6 +224,71 @@ class RequestProvider {
     });
   }
 
+  /// DELETE Request
+  static Future<dynamic> delete({
+    required String url,
+  }) async {
+    return await safeApiCall(() async {
+      final headers = await _getHeaders();
+
+      debugPrint('DELETE → $url');
+
+      final response = await _client.delete(Uri.parse(url), headers: headers).timeout(_timeout);
+      debugPrint('DELETE ← ${response.statusCode}');
+
+      return await _handleResponse(response);
+    });
+  }
+
+  /// Check if URL is a public endpoint that doesn't require authentication
+  static bool _isPublicEndpoint(String url) {
+    final publicEndpoints = [
+      '/users/login/',
+      '/users/signup/',
+      '/users/send-otp/',
+      '/users/verify-otp/',
+      '/users/google-signin/business-owner/',
+    ];
+    return publicEndpoints.any((endpoint) => url.contains(endpoint));
+  }
+
+  /// Get content type from file name extension
+  static http.MediaType? _getContentTypeFromFileName(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return http.MediaType('image', 'jpeg');
+      case 'png':
+        return http.MediaType('image', 'png');
+      case 'gif':
+        return http.MediaType('image', 'gif');
+      case 'webp':
+        return http.MediaType('image', 'webp');
+      case 'pdf':
+        return http.MediaType('application', 'pdf');
+      default:
+        return null; // Let http package detect it
+    }
+  }
+
+  /// Truncate filename to 100 characters while preserving extension
+  static String _truncateFileName(String fileName) {
+    if (fileName.length <= 100) {
+      return fileName;
+    }
+    final lastDotIndex = fileName.lastIndexOf('.');
+    if (lastDotIndex == -1) {
+      // No extension, just truncate
+      return fileName.substring(0, 100);
+    }
+    final extension = fileName.substring(lastDotIndex);
+    final nameWithoutExt = fileName.substring(0, lastDotIndex);
+    // Truncate name part to leave room for extension
+    final maxNameLength = 100 - extension.length;
+    return '${nameWithoutExt.substring(0, maxNameLength)}$extension';
+  }
+
   /// POST Request with Multipart Form Data
   static Future<dynamic> postMultipart({
     required String url,
@@ -317,7 +296,7 @@ class RequestProvider {
     Map<String, File>? files,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       // Remove Content-Type for multipart (http package will set it with boundary)
       headers.remove('Content-Type');
 
@@ -347,7 +326,8 @@ class RequestProvider {
       if (files != null) {
         for (final entry in files.entries) {
           if (await entry.value.exists()) {
-            final fileName = entry.value.path.split('/').last;
+            final fullFileName = entry.value.path.split('/').last;
+            final fileName = _truncateFileName(fullFileName);
             final contentType = _getContentTypeFromFileName(fileName);
             request.files.add(
               await http.MultipartFile.fromPath(
@@ -365,7 +345,8 @@ class RequestProvider {
       for (final entry in fields.entries) {
         if (entry.value is File && await (entry.value as File).exists()) {
           final file = entry.value as File;
-          final fileName = file.path.split('/').last;
+          final fullFileName = file.path.split('/').last;
+          final fileName = _truncateFileName(fullFileName);
           final contentType = _getContentTypeFromFileName(fileName);
           request.files.add(
             await http.MultipartFile.fromPath(
@@ -393,7 +374,7 @@ class RequestProvider {
     Map<String, File>? files,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       // Remove Content-Type for multipart (http package will set it with boundary)
       headers.remove('Content-Type');
 
@@ -423,7 +404,8 @@ class RequestProvider {
       if (files != null) {
         for (final entry in files.entries) {
           if (await entry.value.exists()) {
-            final fileName = entry.value.path.split('/').last;
+            final fullFileName = entry.value.path.split('/').last;
+            final fileName = _truncateFileName(fullFileName);
             final contentType = _getContentTypeFromFileName(fileName);
             request.files.add(
               await http.MultipartFile.fromPath(
@@ -441,7 +423,8 @@ class RequestProvider {
       for (final entry in fields.entries) {
         if (entry.value is File && await (entry.value as File).exists()) {
           final file = entry.value as File;
-          final fileName = file.path.split('/').last;
+          final fullFileName = file.path.split('/').last;
+          final fileName = _truncateFileName(fullFileName);
           final contentType = _getContentTypeFromFileName(fileName);
           request.files.add(
             await http.MultipartFile.fromPath(
@@ -469,7 +452,7 @@ class RequestProvider {
     Map<String, File>? files,
   }) async {
     return await safeApiCall(() async {
-      final headers = await _getHeaders(url: url);
+      final headers = await _getHeaders();
       // Remove Content-Type for multipart (http package will set it with boundary)
       headers.remove('Content-Type');
 
@@ -499,7 +482,8 @@ class RequestProvider {
       if (files != null) {
         for (final entry in files.entries) {
           if (await entry.value.exists()) {
-            final fileName = entry.value.path.split('/').last;
+            final fullFileName = entry.value.path.split('/').last;
+            final fileName = _truncateFileName(fullFileName);
             final contentType = _getContentTypeFromFileName(fileName);
             request.files.add(
               await http.MultipartFile.fromPath(
@@ -517,7 +501,8 @@ class RequestProvider {
       for (final entry in fields.entries) {
         if (entry.value is File && await (entry.value as File).exists()) {
           final file = entry.value as File;
-          final fileName = file.path.split('/').last;
+          final fullFileName = file.path.split('/').last;
+          final fileName = _truncateFileName(fullFileName);
           final contentType = _getContentTypeFromFileName(fileName);
           request.files.add(
             await http.MultipartFile.fromPath(

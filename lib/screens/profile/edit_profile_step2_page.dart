@@ -486,36 +486,79 @@ class _EditProfileStep2PageState extends State<EditProfileStep2Page> {
                                           ),
                                         ),
                                       )
-                                    : DropdownButtonFormField<String>(
-                                        initialValue: provider.selectedServiceCategory,
-                                        style: AppTextStyles.inputText.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                        ),
-                                        dropdownColor: Theme.of(context).colorScheme.surface,
-                                        decoration: InputDecoration(
-                                          hintText: 'Select service category',
-                                          suffixIcon: Icon(
-                                            Icons.keyboard_arrow_down,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        items: provider.serviceCategories.map((category) {
-                                          return DropdownMenuItem<String>(
-                                            value: category.name,
-                                            child: Text(
-                                              category.name,
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.onSurface,
+                                    : Builder(
+                                        builder: (context) {
+                                          // Find the matching category for initialValue
+                                          // selectedServiceCategory might be ID, slug, or name
+                                          String? initialCategoryId;
+                                          if (provider.selectedServiceCategory != null && provider.selectedServiceCategory!.isNotEmpty) {
+                                            try {
+                                              final matchingCategory = provider.serviceCategories.firstWhere(
+                                                (cat) => cat.id == provider.selectedServiceCategory ||
+                                                        cat.slug == provider.selectedServiceCategory ||
+                                                        cat.name == provider.selectedServiceCategory,
+                                              );
+                                              initialCategoryId = matchingCategory.id;
+                                            } catch (e) {
+                                              // Category not found, initialCategoryId remains null
+                                            }
+                                          }
+                                          
+                                          // Remove duplicates by using a Set to track seen IDs
+                                          final seenIds = <String>{};
+                                          final uniqueCategories = provider.serviceCategories.where((category) {
+                                            if (seenIds.contains(category.id)) {
+                                              return false; // Skip duplicate ID
+                                            }
+                                            seenIds.add(category.id);
+                                            return true;
+                                          }).toList();
+                                          
+                                          return DropdownButtonFormField<String>(
+                                            value: initialCategoryId,
+                                            style: AppTextStyles.inputText.copyWith(
+                                              color: Theme.of(context).colorScheme.onSurface,
+                                            ),
+                                            dropdownColor: Theme.of(context).colorScheme.surface,
+                                            decoration: InputDecoration(
+                                              hintText: 'Select service category',
+                                              suffixIcon: Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                               ),
                                             ),
+                                            items: uniqueCategories.map((category) {
+                                              return DropdownMenuItem<String>(
+                                                value: category.id,
+                                                child: Text(
+                                                  category.name,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.onSurface,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (String? categoryId) {
+                                              if (categoryId != null) {
+                                                // Find the category by ID and pass its name to the provider
+                                                try {
+                                                  final selectedCategory = provider.serviceCategories.firstWhere(
+                                                    (cat) => cat.id == categoryId,
+                                                  );
+                                                  provider.setSelectedServiceCategory(selectedCategory.name);
+                                                } catch (e) {
+                                                  // If category not found, try to use the ID directly
+                                                  provider.setSelectedServiceCategory(categoryId);
+                                                }
+                                              }
+                                            },
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return 'Please select service category';
+                                              }
+                                              return null;
+                                            },
                                           );
-                                        }).toList(),
-                                        onChanged: provider.setSelectedServiceCategory,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please select service category';
-                                          }
-                                          return null;
                                         },
                                       ),
                               ],

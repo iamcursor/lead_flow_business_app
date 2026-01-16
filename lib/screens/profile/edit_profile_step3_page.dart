@@ -484,16 +484,134 @@ class _EditProfileStep3PageState extends State<EditProfileStep3Page> {
   }
 
   Future<void> _handlePhotoUpload() async {
+    // Show dialog to choose between camera and gallery
+    if (!mounted) return;
+    
+    final ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.dialogRadius),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(AppDimensions.paddingM),
+                child: Text(
+                  'Select Photo Source',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.camera_alt,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Take Photo',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.photo_library,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+              SizedBox(height: AppDimensions.verticalSpaceS),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (source == null) return;
+
     try {
+      // Use very aggressive compression for camera images to reduce file size and prevent errors
+      final int imageQuality = source == ImageSource.camera ? 50 : 85;
+      final double maxWidth = source == ImageSource.camera ? 800.0 : 1920.0;
+      final double maxHeight = source == ImageSource.camera ? 800.0 : 1920.0;
+      
       final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1920,
+        source: source,
+        imageQuality: imageQuality,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
       );
 
       if (image != null) {
-        final file = File(image.path);
+        File file = File(image.path);
+        
+        // Check if file exists (important for camera images)
+        if (!await file.exists()) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Image file not found. Please try again.'),
+              ),
+            );
+          }
+          return;
+        }
+        
+        // Wait a bit for camera images to be fully written
+        if (source == ImageSource.camera) {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!await file.exists()) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Image file not ready. Please try again.'),
+                ),
+              );
+            }
+            return;
+          }
+          
+          // For camera images, create a new file with a shorter name to avoid database errors
+          final originalPath = file.path;
+          final extension = originalPath.split('.').last.toLowerCase();
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final newFileName = 'photo_$timestamp.$extension';
+          final directory = originalPath.substring(0, originalPath.lastIndexOf('/'));
+          final newPath = '$directory/$newFileName';
+          
+          // Copy to new file with shorter name
+          final newFile = await file.copy(newPath);
+          
+          // Delete original file if it's different
+          if (originalPath != newPath && await file.exists()) {
+            try {
+              await file.delete();
+            } catch (e) {
+              // Ignore deletion errors
+            }
+          }
+          
+          file = newFile;
+        }
+        
         final fileSize = await file.length();
         const maxSize = 5 * 1024 * 1024; // 5MB
 

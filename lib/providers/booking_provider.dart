@@ -119,6 +119,41 @@ class BookingProvider with ChangeNotifier {
       return null;
     }
   }
+
+  // Confirm booking
+  Future<BookingModel?> confirmBooking({
+    required String bookingId,
+  }) async {
+    try {
+      _isUpdatingStatus = true;
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final updatedBooking = await _service.confirmBooking(
+        bookingId: bookingId,
+      );
+
+      // Update the booking in the list
+      final index = _bookings.indexWhere((b) => b.bookingId == bookingId);
+      if (index != -1) {
+        _bookings[index] = updatedBooking;
+      }
+
+      _lastUpdatedBooking = updatedBooking;
+      _isUpdatingStatus = false;
+      _isLoading = false;
+      notifyListeners();
+      return updatedBooking;
+    } catch (e) {
+      _isUpdatingStatus = false;
+      _isLoading = false;
+      _errorMessage = 'Failed to confirm booking: ${e.toString()}';
+      _lastUpdatedBooking = null;
+      notifyListeners();
+      return null;
+    }
+  }
 }
 
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lead_flow_business/screens/auth/forgot_password_page.dart';
 import 'package:lead_flow_business/screens/auth/register_page.dart';
+import 'package:lead_flow_business/screens/auth/choose_plan_page.dart';
 import 'package:lead_flow_business/screens/explore/explore_page.dart';
 import 'package:lead_flow_business/screens/main_navigation_screen.dart';
 import 'package:lead_flow_business/screens/profile/complete_profile_page.dart';
@@ -194,43 +195,56 @@ class _LoginPageState extends State<LoginPage> {
                       // Google Login Button
 
                       if (Platform.isAndroid)
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () => _handleGoogleSignIn(context),
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                            foregroundColor: Theme.of(context).colorScheme.onSurface,
-                            side: BorderSide(
-                              color: Theme.of(context).colorScheme.outline,
-                              width: 1,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppDimensions.buttonRadius,
-                              ),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              vertical: AppDimensions.paddingM,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Google Logo
-                              Image.asset("assets/images/google.png",
-                                height: 20, width: 20,),
-
-                              SizedBox(width: AppDimensions.paddingM),
-                              Text(
-                                'Continue with Google',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                      Builder(
+                        builder: (context) {
+                          final isLightMode = Theme.of(context).brightness == Brightness.light;
+                          return SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () => _handleGoogleSignIn(context),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: isLightMode 
+                                    ? Colors.white 
+                                    : Theme.of(context).colorScheme.surfaceVariant,
+                                foregroundColor: isLightMode 
+                                    ? Theme.of(context).colorScheme.primary 
+                                    : Theme.of(context).colorScheme.onSurface,
+                                side: BorderSide(
+                                  color: isLightMode 
+                                      ? Theme.of(context).colorScheme.primary 
+                                      : Theme.of(context).colorScheme.outline,
+                                  width: 1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AppDimensions.buttonRadius,
+                                  ),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: AppDimensions.paddingM,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Google Logo
+                                  Image.asset("assets/images/google.png",
+                                    height: 20, width: 20,),
+
+                                  SizedBox(width: AppDimensions.paddingM),
+                                  Text(
+                                    'Continue with Google',
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: isLightMode 
+                                          ? Theme.of(context).colorScheme.primary 
+                                          : Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       SizedBox(height: AppDimensions.verticalSpaceM),
                       // Apple Login Button
@@ -438,13 +452,22 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
 
-      // Navigate based on verification status
+      // Check has_active_subscription from login response
+      bool hasActiveSubscription = false;
+      if (response != null && response.containsKey('has_active_subscription')) {
+        hasActiveSubscription = response['has_active_subscription'] == true;
+      }
+      
+      // Navigate based on verification status and subscription
       if (verificationStatus == 'pending' || verificationStatus == 'waiting') {
         // Redirect to waiting for approval screen
         Navigator.push(context, MaterialPageRoute(builder: (context) => WaitingForApprovalPage(),));
+      } else if (!hasActiveSubscription) {
+        // No active subscription - redirect to choose plan page
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ChoosePlanPage(),));
       } else {
-        // Redirect to main navigation screen (Bookings is now the default)
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainNavigationScreen(),));
+        // Has active subscription - redirect to main navigation screen (Explore page)
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 0),));
       }
     }
   }
@@ -531,6 +554,12 @@ class _LoginPageState extends State<LoginPage> {
                             hasRecentPhoto && hasAlternatePhone;
       }
 
+      // Check has_active_subscription from login response
+      bool hasActiveSubscription = false;
+      if (response != null && response.containsKey('has_active_subscription')) {
+        hasActiveSubscription = response['has_active_subscription'] == true;
+      }
+
       // Navigate based on profile completion status
       if (!hasCompleteProfile) {
         // Profile is incomplete (any field is missing) - go to complete profile page
@@ -548,8 +577,16 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (context) => WaitingForApprovalPage()),
           );
+        } else if (!hasActiveSubscription) {
+          // No active subscription - redirect to choose plan page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ChoosePlanPage(),
+            ),
+          );
         } else {
-          // User is registered and verified - go to main navigation
+          // User is registered and verified with active subscription - go to main navigation
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -647,6 +684,12 @@ class _LoginPageState extends State<LoginPage> {
             hasRecentPhoto && hasAlternatePhone;
       }
 
+      // Check has_active_subscription from login response
+      bool hasActiveSubscription = false;
+      if (response != null && response.containsKey('has_active_subscription')) {
+        hasActiveSubscription = response['has_active_subscription'] == true;
+      }
+
       // Navigate based on profile completion status
       if (!hasCompleteProfile) {
         // Profile is incomplete (any field is missing) - go to complete profile page
@@ -664,8 +707,16 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (context) => WaitingForApprovalPage()),
           );
+        } else if (!hasActiveSubscription) {
+          // No active subscription - redirect to choose plan page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ChoosePlanPage(),
+            ),
+          );
         } else {
-          // User is registered and verified - go to main navigation
+          // User is registered and verified with active subscription - go to main navigation
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

@@ -140,11 +140,70 @@ class _BookingsPageState extends State<BookingsPage> {
                               child: _BookingCard(
                                 booking: booking,
                                 onAccept: () async {
-                                  final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
-                                  final updatedBooking = await bookingProvider.updateBookingStatus(
-                                    bookingId: booking.bookingId,
-                                    status: 'confirmed',
+                                  // Show confirmation dialog
+                                  final shouldConfirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (BuildContext dialogContext) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+                                        ),
+                                        title: Text(
+                                          'Confirm Job',
+                                          style: AppTextStyles.bodyLarge.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                        content: Text(
+                                          'Do you want to confirm this job?',
+                                          style: AppTextStyles.bodyMedium.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        actions: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(dialogContext).pop(false),
+                                                child: Text(
+                                                  'No',
+                                                  style: AppTextStyles.buttonMedium.copyWith(
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+
+                                               TextButton(
+                                                 onPressed: () => Navigator.of(dialogContext).pop(true),
+                                                 style: TextButton.styleFrom(
+                                                   backgroundColor: AppColors.primary,
+                                                   foregroundColor: AppColors.textOnPrimary,
+                                                   shape: RoundedRectangleBorder(
+                                                     borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                                                   ),
+                                                 ),
+                                                 child: Text(
+                                                   'Yes',
+                                                   style: AppTextStyles.buttonLarge,
+                                                 ),
+                                               ),
+                                            ],
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
+
+                              // Only proceed if user clicked "Yes"
+                              if (shouldConfirm != true) {
+                                return;
+                              }
+
+                              final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+                              final updatedBooking = await bookingProvider.confirmBooking(
+                                bookingId: booking.bookingId,
+                              );
                                   
                                   if (updatedBooking != null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -657,13 +716,27 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isOutlined) {
+      final isLightMode = Theme.of(context).brightness == Brightness.light;
+      final isViewDetailsButton = label == 'View Details';
+      
+      // Special styling for "View Details" button in light mode
+      final backgroundColor = (isLightMode && isViewDetailsButton) 
+          ? Colors.white 
+          : Theme.of(context).colorScheme.surfaceVariant;
+      final borderColor = (isLightMode && isViewDetailsButton)
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.outline;
+      final textColor = (isLightMode && isViewDetailsButton)
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.onSurface;
+      
       return OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          backgroundColor: backgroundColor,
+          foregroundColor: textColor,
           side: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
+            color: borderColor,
             width: 1,
           ),
           padding: EdgeInsets.symmetric(
@@ -681,17 +754,17 @@ class _ActionButton extends StatelessWidget {
                 imagePath!,
                 width: AppDimensions.iconS,
                 height: AppDimensions.iconS,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: textColor,
               ),
               SizedBox(width: AppDimensions.paddingXS),
             ] else if (icon != null) ...[
-              Icon(icon, size: AppDimensions.iconS, color: Theme.of(context).colorScheme.onSurface),
+              Icon(icon, size: AppDimensions.iconS, color: textColor),
               SizedBox(width: AppDimensions.paddingXS),
             ],
             Text(
               label,
               style: AppTextStyles.buttonSmall.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: textColor,
               ),
             ),
           ],

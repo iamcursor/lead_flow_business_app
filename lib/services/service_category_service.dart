@@ -50,6 +50,31 @@ class ServiceCategoryService {
     }
   }
 
+  /// Get a single main category by ID
+  Future<ServiceCategoryModel> getMainCategoryById(String categoryId) async {
+    try {
+      final url = '${AppUrl.mainServiceCategories}$categoryId/';
+      final data = await RequestProvider.get(
+        url: url,
+      );
+
+      if (data == null) {
+        throw UnknownException('Failed to fetch service category: No response from server');
+      }
+
+      if (data is Map<String, dynamic>) {
+        return ServiceCategoryModel.fromJson(data);
+      } else {
+        throw UnknownException('Invalid response format');
+      }
+    } on NetworkExceptions {
+      rethrow;
+    } catch (e) {
+      if (e is NetworkExceptions) rethrow;
+      throw UnknownException('Failed to fetch service category: ${e.toString()}');
+    }
+  }
+
   /// Get sub-categories by main category ID
   Future<List<SubCategoryModel>> getSubCategoriesByMainCategory(String mainCategoryId) async {
     try {

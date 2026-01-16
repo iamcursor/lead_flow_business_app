@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart';
 import '../common/constants/app_url.dart';
 import '../common/utils/request_provider.dart';
 import '../common/utils/app_excpetions.dart';
@@ -124,6 +125,39 @@ class BookingService {
 
       if (e is NetworkExceptions) rethrow;
       throw UnknownException('Update booking status failed: ${e.toString()}');
+    }
+  }
+
+  // Confirm booking
+  Future<BookingModel> confirmBooking({
+    required String bookingId,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'booking_id': bookingId,
+      };
+
+      final data = await RequestProvider.post(
+        url: AppUrl.confirmBooking,
+        body: body,
+      );
+
+      if (data == null) {
+        throw UnknownException('Confirm booking failed: No response from server');
+      }
+
+      if (data is Map<String, dynamic>) {
+        return BookingModel.fromJson(data);
+      } else if (data is Map) {
+        return BookingModel.fromJson(Map<String, dynamic>.from(data));
+      }
+
+      throw UnknownException('Invalid response format: ${data.runtimeType}');
+    } on NetworkExceptions catch (e) {
+      rethrow;
+    } catch (e) {
+      if (e is NetworkExceptions) rethrow;
+      throw UnknownException('Confirm booking failed: ${e.toString()}');
     }
   }
 }

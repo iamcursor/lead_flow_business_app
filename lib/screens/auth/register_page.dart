@@ -206,42 +206,55 @@ class _RegisterPageState extends State<RegisterPage> {
                         children: [
                           // Google Login Button
                           if (Platform.isAndroid)
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: () => _handleGoogleSignIn(context),
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.outline,
-                                  width: 1,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppDimensions.buttonRadius,
-                                  ),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: AppDimensions.paddingM,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Google Logo
-                                  Image.asset("assets/images/google.png",
-                                    height: 20, width: 20,),
-                                  SizedBox(width: AppDimensions.paddingM),
-                                  Text(
-                                    'Continue with Google',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
+                          Builder(
+                            builder: (context) {
+                              final isLightMode = Theme.of(context).brightness == Brightness.light;
+                              return SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  onPressed: () => _handleGoogleSignIn(context),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: isLightMode 
+                                        ? Colors.white 
+                                        : Theme.of(context).colorScheme.surfaceVariant,
+                                    foregroundColor: isLightMode 
+                                        ? Theme.of(context).colorScheme.primary 
+                                        : Theme.of(context).colorScheme.onSurface,
+                                    side: BorderSide(
+                                      color: isLightMode 
+                                          ? Theme.of(context).colorScheme.primary 
+                                          : Theme.of(context).colorScheme.outline,
+                                      width: 1,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.buttonRadius,
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: AppDimensions.paddingM,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Google Logo
+                                      Image.asset("assets/images/google.png",
+                                        height: 20, width: 20,),
+                                      SizedBox(width: AppDimensions.paddingM),
+                                      Text(
+                                        'Continue with Google',
+                                        style: AppTextStyles.bodyMedium.copyWith(
+                                          color: isLightMode 
+                                              ? Theme.of(context).colorScheme.primary 
+                                              : Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           SizedBox(height: AppDimensions.verticalSpaceM),
                           // Apple Login Button
